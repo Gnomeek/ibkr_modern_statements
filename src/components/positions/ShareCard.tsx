@@ -20,6 +20,16 @@ function fmtUsd(v: number) {
   return `${v >= 0 ? '+' : '-'}$${Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
+// 根据字符串长度缩小大数字字号，防止溢出
+function bigFontSize(text: string): number {
+  const len = text.length
+  if (len <= 8)  return 52
+  if (len <= 10) return 44
+  if (len <= 12) return 36
+  if (len <= 14) return 30
+  return 26
+}
+
 const ShareCard = forwardRef<HTMLDivElement, Props>(({ ticker, variant, dark, lang, period }, ref) => {
   const t = createT(lang)
   const positive = variant === 'rate' ? ticker.returnPct >= 0 : ticker.totalPL >= 0
@@ -65,12 +75,17 @@ const ShareCard = forwardRef<HTMLDivElement, Props>(({ ticker, variant, dark, la
       </div>
 
       {/* Big number */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: 52, fontWeight: 900, color: primary, lineHeight: 1 }}>
-          {variant === 'rate' ? fmtPct(ticker.returnPct) : fmtUsd(ticker.totalPL)}
-        </span>
-        <span style={{ fontSize: 40 }}>{variant === 'rate' ? '🚀' : '📈'}</span>
-      </div>
+      {(() => {
+        const bigText = variant === 'rate' ? fmtPct(ticker.returnPct) : fmtUsd(ticker.totalPL)
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+            <span style={{ fontSize: bigFontSize(bigText), fontWeight: 900, color: primary, lineHeight: 1, minWidth: 0, wordBreak: 'break-all' }}>
+              {bigText}
+            </span>
+            <span style={{ fontSize: 36, flexShrink: 0 }}>{variant === 'rate' ? '🚀' : '📈'}</span>
+          </div>
+        )
+      })()}
 
       {/* Detail rows */}
       <div style={{ background: surface, borderRadius: 12, padding: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -99,9 +114,9 @@ export default ShareCard
 
 function CardRow({ label, value, muted, text }: { label: string; value: string; muted: string; text: string }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14 }}>
-      <span style={{ color: muted }}>{label}</span>
-      <span style={{ fontWeight: 600, color: text, fontFamily: 'monospace' }}>{value}</span>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 14, gap: 8 }}>
+      <span style={{ color: muted, flexShrink: 0 }}>{label}</span>
+      <span style={{ fontWeight: 600, color: text, fontFamily: 'monospace', textAlign: 'right', minWidth: 0, wordBreak: 'break-all' }}>{value}</span>
     </div>
   )
 }
