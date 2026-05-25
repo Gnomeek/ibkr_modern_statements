@@ -26,7 +26,7 @@ export function buildTickerSummaries(data: MergedStatementData): TickerSummary[]
 
     const quantity = pos?.quantity ?? 0
     const costPrice = pos?.costPrice ?? 0
-    const costBasis = pos?.costBasis ?? Math.abs(estimateCostBasisFromTrades(data, symbol))
+    const costBasis = pos?.costBasis ?? estimateCostBasisFromTrades(data, symbol)
     const currentPrice = pos?.closePrice ?? 0
     const marketValue = pos?.marketValue ?? 0
 
