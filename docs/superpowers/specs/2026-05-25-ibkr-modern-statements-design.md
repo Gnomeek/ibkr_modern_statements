@@ -7,7 +7,9 @@
 
 ## Overview
 
-A purely client-side static web app that accepts an IBKR Activity Statement CSV, parses it in the browser, and renders a modern financial dashboard with shareable per-ticker cards. No backend, no data leaves the user's machine.
+A purely client-side static web app that accepts one or more IBKR Activity Statement CSVs, merges them in the browser, and renders a modern financial dashboard with shareable per-ticker cards. No backend, no data leaves the user's machine.
+
+IBKR limits exports to 365 days per file. Users can upload multiple CSVs covering different (potentially overlapping) periods; the app detects overlaps and deduplicates automatically.
 
 ---
 
@@ -31,10 +33,10 @@ A purely client-side static web app that accepts an IBKR Activity Statement CSV,
 ### Data Flow
 
 ```
-CSV File Upload
-  → PapaParse (raw rows)
-  → parseStatement() in lib/parser.ts
-  → StatementData (typed structure)
+CSV File(s) Upload (1 or more)
+  → PapaParse (raw rows) per file
+  → parseStatement() in lib/parser.ts → StatementData per file
+  → mergeStatements() in lib/merger.ts → single MergedStatementData
   → StatementContext (React Context)
   → Tab components consume data
 ```
@@ -53,6 +55,7 @@ src/
     useStatement.ts ← consume StatementContext
   lib/
     parser.ts       ← CSV → StatementData
+    merger.ts       ← StatementData[] → MergedStatementData
     calculations.ts ← derived metrics
     shareCard.ts    ← html2canvas export logic
   types/
@@ -73,9 +76,11 @@ Max 8 files per directory. Any directory approaching limit gets split into subdi
 ### Upload Page (`/`)
 
 - Full-screen centered layout
-- Drag-and-drop zone + click-to-browse
-- On file select: parse CSV → if valid, navigate to `#/dashboard`
-- On parse error: inline error message with guidance
+- Drag-and-drop zone + click-to-browse, supports **multiple file selection**
+- File list UI: shows each uploaded file with its detected period (e.g. "2024-01-01 ~ 2024-12-31") and a remove button
+- Overlap badge: when two files have overlapping periods, show a yellow "Overlap detected — deduplicating" indicator
+- "Analyze" button: enabled once ≥1 valid file is loaded → triggers merge → navigates to `#/dashboard`
+- On parse error: per-file inline error message
 - Shows "How to export from IBKR" hint (collapsible)
 
 ### Dashboard Page (`#/dashboard`)
@@ -86,7 +91,7 @@ Three tabs using Base UI Tabs component:
 2. **持仓 Positions**
 3. **交易记录 Trades**
 
-Top bar: account name, report period, language toggle (EN / 中文), theme toggle (light/dark).
+Top bar: account name, merged report period (earliest start → latest end across all files), language toggle (EN / 中文), theme toggle (light/dark), "Upload More" button to add additional CSVs.
 
 ---
 
@@ -204,6 +209,36 @@ Parser reads rows sequentially, switches section context on `Header` rows, accum
 
 ---
 
+## Multi-File Merge Strategy
+
+`mergeStatements(statements: StatementData[]): MergedStatementData`
+
+**Step 1 — Sort** all statements by period start date ascending.
+
+**Step 2 — Detect overlaps** by comparing each statement's `[periodStart, periodEnd]` against others. Overlapping pairs are flagged and shown in the UI.
+
+**Step 3 — Merge Trades (deduplicate)**
+- Dedup key: `Symbol + Date/Time + Quantity + T.Price`
+- If two files contain a trade with identical key, keep one copy.
+- All unique trades from all files are merged into a single sorted list.
+
+**Step 4 — Realized P/L (from Trades)**
+- Recompute from the deduplicated trade list rather than trusting per-file summary sections.
+- Sum `Realized P/L` column from all unique `Trades,Data,Order` rows per ticker.
+
+**Step 5 — Use the latest file's point-in-time data**
+- The file with the latest `periodEnd` is the "current snapshot" file.
+- `Open Positions`, `Net Asset Value`, `TWR`, and `Change in NAV` are taken exclusively from this file.
+- These sections reflect current state and must not be summed across files.
+
+**Step 6 — Merged period**
+- `mergedPeriodStart` = min of all `periodStart`
+- `mergedPeriodEnd` = max of all `periodEnd`
+
+**Edge case — single file:** merge is a no-op, pass through directly.
+
+---
+
 ## Internationalization
 
 Language toggle (EN / 中文) stored in React state (no persistence needed).
@@ -233,5 +268,5 @@ perTicker.returnPct = (totalPL) / costBasis * 100
 
 - No server, no data persistence, no authentication
 - No real-time price updates
-- No multi-file / multi-account merging
+- No multi-account merging (multiple files must be from the same IBKR account)
 - No mobile-optimized layout (desktop-first, share cards are mobile-sized by design)
