@@ -42,8 +42,15 @@ export function parseStatement(csvText: string): StatementData {
     if (rowType === 'Header') {
       currentSection = sectionName
       switch (sectionName) {
-        case 'Net Asset Value':                         navHeaderCols = rest; break
-        case 'Trades':                                  tradeHeaderCols = rest; break
+        // Bug 3 修复: TWR header 只有一列，跳过避免覆盖资产类别 header
+        case 'Net Asset Value':
+          if (rest.length > 1) navHeaderCols = rest
+          break
+        // Bug 1 修复: 只记录 Stocks trades 的 header
+        // Stocks header 含 'Realized P/L' 列，Forex header 不含
+        case 'Trades':
+          if (rest.includes('Realized P/L')) tradeHeaderCols = rest
+          break
         case 'Open Positions':                          openPosHeaderCols = rest; break
         case 'Realized & Unrealized Performance Summary': ruHeaderCols = rest; break
       }
@@ -62,9 +69,11 @@ export function parseStatement(csvText: string): StatementData {
       case 'Statement': {
         const [fieldName, fieldValue] = rest
         if (fieldName === 'Period') {
-          const [startStr, endStr] = fieldValue.split(' - ')
-          result.periodStart = parsePeriodDate(startStr.trim())
-          result.periodEnd   = parsePeriodDate(endStr.trim())
+          // Bug 4 修复: 统一 em-dash/en-dash/hyphen 为标准 ASCII 连字符再切割
+          const normalized = fieldValue.replace(/\s[–—]\s/g, ' - ')
+          const parts = normalized.split(' - ')
+          result.periodStart = parsePeriodDate(parts[0].trim())
+          result.periodEnd   = parsePeriodDate(parts[1].trim())
         }
         break
       }
@@ -104,7 +113,10 @@ export function parseStatement(csvText: string): StatementData {
         //                 'Realized L/T Profit','Realized L/T Loss','Realized Total',
         //                 'Unrealized S/T Profit','Unrealized S/T Loss','Unrealized L/T Profit',
         //                 'Unrealized L/T Loss','Unrealized Total','Total','Code']
+        // Bug 2 修复: 跳过 Forex 行和各类 Total 汇总行，只保留 Stocks 标的
         const col = (name: string) => rest[ruHeaderCols.indexOf(name)]
+        const assetCategory = col('Asset Category')
+        if (assetCategory !== 'Stocks') break
         const symbol = col('Symbol')
         if (!symbol || symbol === 'Total') break
         result.realizedUnrealized.push({
@@ -144,9 +156,10 @@ export function parseStatement(csvText: string): StatementData {
         // tradeHeaderCols = ['DataDiscriminator','Asset Category','Currency','Symbol','Date/Time',
         //                    'Quantity','T. Price','C. Price','Proceeds','Comm/Fee','Basis',
         //                    'Realized P/L','MTM P/L','Code']
-        // 只取 Order 行
+        // Bug 1 修复: 只取 Stocks Order 行，跳过 Forex
         const col = (name: string) => rest[tradeHeaderCols.indexOf(name)]
         if (col('DataDiscriminator') !== 'Order') break
+        if (col('Asset Category') !== 'Stocks') break
 
         const symbol = col('Symbol')
         if (!symbol) break
@@ -179,5 +192,7 @@ export function parseStatement(csvText: string): StatementData {
 // 日期解析: "January 1, 2026" 或 "May 22, 2026"
 // ─────────────────────────────────────────────
 function parsePeriodDate(s: string): Date {
-  return new Date(s)
+  const date = new Date(s)
+  if (isNaN(date.getTime())) throw new Error(`Cannot parse date: "${s}"`)
+  return date
 }
