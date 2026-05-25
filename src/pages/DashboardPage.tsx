@@ -23,6 +23,7 @@ interface TopBarProps {
   lang: 'en' | 'zh'
   darkMode: boolean
   masked: boolean
+  isDemo: boolean
   onUploadMore: () => void
   onToggleLang: () => void
   onToggleDark: () => void
@@ -35,6 +36,7 @@ function TopBar({
   lang,
   darkMode,
   masked,
+  isDemo,
   onUploadMore,
   onToggleLang,
   onToggleDark,
@@ -52,9 +54,16 @@ function TopBar({
     <header className={`sticky top-0 z-10 ${bg} border-b ${borderColor} px-4 py-3`}>
       <div className="max-w-7xl mx-auto flex items-center gap-4">
         {/* 账户信息 */}
-        <div className="flex-1 min-w-0">
-          <p className={`text-sm font-semibold truncate ${textPrimary}`}>{accountName}</p>
-          <p className={`text-xs ${textMuted}`}>{period}</p>
+        <div className="flex-1 min-w-0 flex items-center gap-2">
+          <div className="min-w-0">
+            <p className={`text-sm font-semibold truncate ${textPrimary}`}>{accountName}</p>
+            <p className={`text-xs ${textMuted}`}>{period}</p>
+          </div>
+          {isDemo && (
+            <span className="shrink-0 text-xs font-mono px-1.5 py-0.5 rounded bg-green-500/20 text-green-400 border border-green-500/30">
+              DEMO
+            </span>
+          )}
         </div>
 
         {/* 操作按钮组 */}
@@ -96,7 +105,7 @@ function TopBar({
 
 // ---- 主页面 ----
 export default function DashboardPage() {
-  const { merged, lang, setLang, darkMode, setDarkMode, masked, setMasked } = useStatement()
+  const { merged, isDemo, lang, setLang, darkMode, setDarkMode, masked, setMasked } = useStatement()
   const t = createT(lang)
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<TabValue>('overview')
@@ -135,6 +144,7 @@ export default function DashboardPage() {
         lang={lang}
         darkMode={darkMode}
         masked={masked}
+        isDemo={isDemo}
         onUploadMore={() => navigate('/')}
         onToggleLang={() => setLang(lang === 'en' ? 'zh' : 'en')}
         onToggleDark={() => setDarkMode(!darkMode)}

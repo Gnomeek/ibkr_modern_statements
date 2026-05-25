@@ -20,6 +20,7 @@ export function mergeStatements(statements: StatementData[]): MergedStatementDat
     accountId: latest.accountId,
     baseCurrency: latest.baseCurrency,
     currentNav: latest.currentNav,
+    // TWR 取最新文件：IBKR 的 TWR 是从账户期初累计的，最新文件覆盖最长历史
     twr: latest.twr,
     cashBalance: latest.cashBalance,
     // 多文件时：起始 NAV 取最早文件，出入金累加所有文件（去重逻辑由 dedup trades 保证），ending 取最新

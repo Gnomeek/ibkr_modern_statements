@@ -56,6 +56,8 @@ const dict = {
   remove: { en: 'Remove', zh: '删除' },
   account: { en: 'Account', zh: '账户' },
   currency: { en: 'Currency', zh: '货币' },
+  tryDemo: { en: 'Try Demo', zh: '体验 Demo' },
+  demoLabel: { en: 'DEMO', zh: 'DEMO' },
   maskValues: { en: 'Hide $', zh: '隐藏金额' },
   unmaskValues: { en: 'Show $', zh: '显示金额' },
   exportStep1: { en: 'Log in to IBKR → Reports → Statements', zh: '登录 IBKR → 报告 → 报表' },

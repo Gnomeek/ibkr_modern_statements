@@ -79,6 +79,7 @@ describe('mergeStatements', () => {
     const s2 = makeStatement({ periodEnd: new Date('2026-06-30'), currentNav: 80000, twr: 0.09 })
     const result = mergeStatements([s1, s2])
     expect(result.currentNav).toBe(80000)
+    // TWR from latest file — IBKR's TWR is cumulative from account inception
     expect(result.twr).toBe(0.09)
   })
 

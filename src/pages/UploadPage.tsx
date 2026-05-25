@@ -10,12 +10,17 @@ function formatDate(d: Date) {
 }
 
 export default function UploadPage() {
-  const { files, merged, removeFile, lang, setLang } = useStatement()
+  const { files, merged, removeFile, lang, setLang, loadDemo } = useStatement()
   const t = createT(lang)
   const navigate = useNavigate()
   const [showHint, setShowHint] = useState(false)
 
   const validFiles = files.filter(f => !f.error)
+
+  function handleDemo() {
+    loadDemo()
+    navigate('/dashboard')
+  }
 
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center px-4 py-12">
@@ -34,6 +39,21 @@ export default function UploadPage() {
 
         {/* Drop zone */}
         <UploadZone />
+
+        {/* Demo button — only shown when no files uploaded */}
+        {files.length === 0 && (
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-gray-800" />
+            <button
+              onClick={handleDemo}
+              className="flex items-center gap-2 text-sm text-gray-400 hover:text-white px-4 py-2 rounded-lg border border-gray-700 hover:border-green-500/50 transition-colors"
+            >
+              <span className="text-xs bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded font-mono">{t('demoLabel')}</span>
+              {t('tryDemo')}
+            </button>
+            <div className="flex-1 h-px bg-gray-800" />
+          </div>
+        )}
 
         {/* File list */}
         {files.length > 0 && (
