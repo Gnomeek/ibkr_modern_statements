@@ -4,7 +4,7 @@ import { useStatement } from '../../hooks/useStatement'
 import { createT } from '../../i18n'
 
 export default function UploadZone() {
-  const { lang, addFiles } = useStatement()
+  const { lang, addFiles, darkMode } = useStatement()
   const t = createT(lang)
   const inputRef = useRef<HTMLInputElement>(null)
   const [dragging, setDragging] = useState(false)
@@ -36,11 +36,13 @@ export default function UploadZone() {
         cursor-pointer rounded-xl border-2 border-dashed p-12 text-center transition-colors
         ${dragging
           ? 'border-green-400 bg-green-400/10'
-          : 'border-gray-600 hover:border-gray-400 bg-gray-800/50'}
+          : darkMode
+            ? 'border-gray-600 hover:border-gray-400 bg-gray-800/50'
+            : 'border-gray-300 hover:border-gray-400 bg-gray-100/50'}
       `}
     >
       <div className="text-4xl mb-4">📁</div>
-      <p className="text-gray-300 text-sm">{t('dragDrop')}</p>
+      <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-500'}`}>{t('dragDrop')}</p>
       <input
         ref={inputRef}
         type="file"

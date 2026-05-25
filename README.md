@@ -49,7 +49,7 @@ A client-side web app for analyzing Interactive Brokers activity statements. Upl
 
 1. Log in → **Reports** → **Statements**
 2. Select statement type: **Activity**
-3. Set date range (max 365 days per export) → format: **CSV**
+3. Set date range (max 365 days per export) → format: **CSV** in English
 4. For history longer than 365 days, export multiple CSVs and upload them together.
 
 <img src="assets/how-to-get-ibkr-statements.jpeg" alt="IBKR export guide" width="480" />

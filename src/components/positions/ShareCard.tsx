@@ -81,7 +81,11 @@ const ShareCard = forwardRef<HTMLDivElement, Props>(({ ticker, variant, dark, la
             <span style={{ fontSize: bigFontSize(bigText), fontWeight: 900, color: primary, lineHeight: 1, minWidth: 0, wordBreak: 'break-all' }}>
               {bigText}
             </span>
-            <span style={{ fontSize: 36, flexShrink: 0 }}>{variant === 'rate' ? '🚀' : '📈'}</span>
+            <span style={{ fontSize: 36, flexShrink: 0 }}>
+              {variant === 'rate'
+                ? (positive ? '🚀' : '📉')
+                : (positive ? '📈' : '📉')}
+            </span>
           </div>
         )
       })()}

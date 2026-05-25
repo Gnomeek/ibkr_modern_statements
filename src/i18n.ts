@@ -62,7 +62,7 @@ const dict = {
   unmaskValues: { en: 'Show $', zh: '显示金额' },
   exportStep1: { en: 'Log in to IBKR → Reports → Statements', zh: '登录 IBKR → 报告 → 报表' },
   exportStep2: { en: 'Select Activity statement type', zh: '选择"活动"报表类型' },
-  exportStep3: { en: 'Choose date range (max 365 days) → CSV format', zh: '选择日期范围（最长 365 天）→ CSV 格式' },
+  exportStep3: { en: 'Choose date range (max 365 days) → CSV forma in English', zh: '选择日期范围（最长 365 天）→ CSV 格式（选择英文导出）' },
   exportStep4: { en: 'Download and upload here. For longer history, export multiple CSVs.', zh: '下载后上传到此处。历史更长时可导出多个 CSV。' },
 } as const
 
