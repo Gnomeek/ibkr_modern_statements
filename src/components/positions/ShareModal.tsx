@@ -16,16 +16,19 @@ export default function ShareModal({ ticker, onClose }: Props) {
   const t = createT(lang)
   const [variant, setVariant] = useState<'rate' | 'amount'>('rate')
   const [cardDark, setCardDark] = useState(darkMode)
-  const cardRef = useRef<HTMLDivElement>(null)
+  // captureRef points to a full-size hidden card used for PNG export only
+  const captureRef = useRef<HTMLDivElement>(null)
 
   if (!merged) return null
 
   const period = `${merged.periodStart.toISOString().slice(0, 7)} ~ ${merged.periodEnd.toISOString().slice(0, 7)}`
 
   async function download() {
-    if (!cardRef.current) return
-    await exportCardAsPng(cardRef.current, `${ticker.symbol}-${variant}-${cardDark ? 'dark' : 'light'}.png`)
+    if (!captureRef.current) return
+    await exportCardAsPng(captureRef.current, `${ticker.symbol}-${variant}-${cardDark ? 'dark' : 'light'}.png`)
   }
+
+  const cardProps = { ticker, variant, dark: cardDark, lang, period }
 
   return (
     <div
@@ -72,18 +75,16 @@ export default function ShareModal({ ticker, onClose }: Props) {
           </button>
         </div>
 
-        {/* Card preview — scaled to fit modal */}
+        {/* Card preview — visual only, scaled with CSS transform */}
         <div className="flex justify-center mb-4 overflow-hidden" style={{ height: 267 }}>
           <div style={{ transform: 'scale(0.712)', transformOrigin: 'top center' }}>
-            <ShareCard
-              ref={cardRef}
-              ticker={ticker}
-              variant={variant}
-              dark={cardDark}
-              lang={lang}
-              period={period}
-            />
+            <ShareCard {...cardProps} />
           </div>
+        </div>
+
+        {/* Hidden full-size card for html2canvas capture — no transform applied */}
+        <div style={{ position: 'absolute', left: -9999, top: -9999, pointerEvents: 'none' }}>
+          <ShareCard ref={captureRef} {...cardProps} />
         </div>
 
         {/* Download button */}
