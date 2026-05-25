@@ -25,7 +25,7 @@ function sortTrades(trades: Trade[], key: SortKey, asc: boolean): Trade[] {
 }
 
 export default function TradesTable() {
-  const { merged, lang, darkMode } = useStatement()
+  const { merged, lang, darkMode, masked } = useStatement()
   const t = createT(lang)
   const [selectedSymbols, setSelectedSymbols] = useState<string[]>([])
   const [sortKey, setSortKey] = useState<SortKey>('dateTime')
@@ -93,8 +93,8 @@ export default function TradesTable() {
                 </td>
                 <td className="px-3 py-2 font-mono">{Math.abs(tr.quantity)}</td>
                 <td className="px-3 py-2 font-mono">${tr.price.toFixed(3)}</td>
-                <td className="px-3 py-2 font-mono">${Math.abs(tr.proceeds).toFixed(2)}</td>
-                <td className="px-3 py-2 font-mono text-gray-400">${Math.abs(tr.commission).toFixed(4)}</td>
+                <td className="px-3 py-2 font-mono">{masked ? '$***' : `$${Math.abs(tr.proceeds).toFixed(2)}`}</td>
+                <td className="px-3 py-2 font-mono text-gray-400">{masked ? '$***' : `$${Math.abs(tr.commission).toFixed(4)}`}</td>
                 <td className="px-3 py-2"><PnlCell value={tr.realizedPL} /></td>
               </tr>
             ))}

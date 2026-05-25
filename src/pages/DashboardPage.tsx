@@ -22,9 +22,11 @@ interface TopBarProps {
   period: string
   lang: 'en' | 'zh'
   darkMode: boolean
+  masked: boolean
   onUploadMore: () => void
   onToggleLang: () => void
   onToggleDark: () => void
+  onToggleMask: () => void
 }
 
 function TopBar({
@@ -32,9 +34,11 @@ function TopBar({
   period,
   lang,
   darkMode,
+  masked,
   onUploadMore,
   onToggleLang,
   onToggleDark,
+  onToggleMask,
 }: TopBarProps) {
   const borderColor = darkMode ? 'border-gray-800' : 'border-gray-200'
   const bg = darkMode ? 'bg-gray-950' : 'bg-white'
@@ -55,6 +59,14 @@ function TopBar({
 
         {/* 操作按钮组 */}
         <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={onToggleMask}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${masked ? 'bg-yellow-500 hover:bg-yellow-400 text-black' : `${btnSecondary}`}`}
+            title={masked ? (lang === 'zh' ? '显示金额' : 'Show amounts') : (lang === 'zh' ? '隐藏金额' : 'Hide amounts')}
+          >
+            {masked ? '👁' : '🙈'}
+          </button>
+
           <button
             onClick={onUploadMore}
             className="px-3 py-1.5 text-xs font-medium rounded-md bg-green-500 hover:bg-green-400 text-white transition-colors cursor-pointer"
@@ -84,7 +96,7 @@ function TopBar({
 
 // ---- 主页面 ----
 export default function DashboardPage() {
-  const { merged, lang, setLang, darkMode, setDarkMode } = useStatement()
+  const { merged, lang, setLang, darkMode, setDarkMode, masked, setMasked } = useStatement()
   const t = createT(lang)
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<TabValue>('overview')
@@ -122,9 +134,11 @@ export default function DashboardPage() {
         period={period}
         lang={lang}
         darkMode={darkMode}
+        masked={masked}
         onUploadMore={() => navigate('/')}
         onToggleLang={() => setLang(lang === 'en' ? 'zh' : 'en')}
         onToggleDark={() => setDarkMode(!darkMode)}
+        onToggleMask={() => setMasked(!masked)}
       />
 
       <main className="max-w-7xl mx-auto px-4 py-6">

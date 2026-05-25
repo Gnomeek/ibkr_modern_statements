@@ -56,6 +56,8 @@ const dict = {
   remove: { en: 'Remove', zh: '删除' },
   account: { en: 'Account', zh: '账户' },
   currency: { en: 'Currency', zh: '货币' },
+  maskValues: { en: 'Hide $', zh: '隐藏金额' },
+  unmaskValues: { en: 'Show $', zh: '显示金额' },
   exportStep1: { en: 'Log in to IBKR → Reports → Statements', zh: '登录 IBKR → 报告 → 报表' },
   exportStep2: { en: 'Select Activity statement type', zh: '选择"活动"报表类型' },
   exportStep3: { en: 'Choose date range (max 365 days) → CSV format', zh: '选择日期范围（最长 365 天）→ CSV 格式' },

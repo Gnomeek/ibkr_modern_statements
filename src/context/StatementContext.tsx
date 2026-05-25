@@ -16,10 +16,12 @@ interface StatementContextValue {
   merged: MergedStatementData | null
   lang: Lang
   darkMode: boolean
+  masked: boolean
   addFiles: (csvTexts: { name: string; text: string }[]) => void
   removeFile: (name: string) => void
   setLang: (lang: Lang) => void
   setDarkMode: (dark: boolean) => void
+  setMasked: (masked: boolean) => void
 }
 
 export const StatementContext = createContext<StatementContextValue | null>(null)
@@ -28,6 +30,7 @@ export function StatementProvider({ children }: { children: ReactNode }) {
   const [files, setFiles] = useState<FileEntry[]>([])
   const [lang, setLang] = useState<Lang>('en')
   const [darkMode, setDarkMode] = useState(true)
+  const [masked, setMasked] = useState(false)
 
   const merged: MergedStatementData | null = useMemo(() => {
     const validStatements = files.filter(f => !f.error).map(f => f.statement)
@@ -55,7 +58,7 @@ export function StatementProvider({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <StatementContext.Provider value={{ files, merged, lang, darkMode, addFiles, removeFile, setLang, setDarkMode }}>
+    <StatementContext.Provider value={{ files, merged, lang, darkMode, masked, addFiles, removeFile, setLang, setDarkMode, setMasked }}>
       {children}
     </StatementContext.Provider>
   )

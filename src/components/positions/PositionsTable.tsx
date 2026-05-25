@@ -10,7 +10,7 @@ import ShareModal from './ShareModal'
 type SortKey = keyof Pick<TickerSummary, 'symbol' | 'marketValue' | 'realizedPL' | 'unrealizedPL' | 'totalPL' | 'returnPct'>
 
 export default function PositionsTable() {
-  const { merged, lang, darkMode } = useStatement()
+  const { merged, lang, darkMode, masked } = useStatement()
   const t = createT(lang)
   const [sortKey, setSortKey] = useState<SortKey>('totalPL')
   const [sortAsc, setSortAsc] = useState(false)
@@ -68,9 +68,9 @@ export default function PositionsTable() {
               <tr key={row.symbol} className={`${darkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'} transition-colors`}>
                 <td className="px-3 py-3 font-mono font-semibold">{row.symbol}</td>
                 <td className="px-3 py-3 text-right font-mono text-gray-400">{row.quantity || '—'}</td>
-                <td className="px-3 py-3 text-right font-mono">{row.costPrice > 0 ? `$${row.costPrice.toFixed(2)}` : '—'}</td>
+                <td className="px-3 py-3 text-right font-mono">{masked ? '$***' : row.costPrice > 0 ? `$${row.costPrice.toFixed(2)}` : '—'}</td>
                 <td className="px-3 py-3 text-right font-mono">{row.currentPrice > 0 ? `$${row.currentPrice.toFixed(2)}` : '—'}</td>
-                <td className="px-3 py-3 text-right font-mono">{row.marketValue > 0 ? `$${row.marketValue.toLocaleString()}` : '—'}</td>
+                <td className="px-3 py-3 text-right font-mono">{masked ? '$***' : row.marketValue > 0 ? `$${row.marketValue.toLocaleString()}` : '—'}</td>
                 <td className="px-3 py-3 text-right"><PnlCell value={row.realizedPL} /></td>
                 <td className="px-3 py-3 text-right"><PnlCell value={row.unrealizedPL} /></td>
                 <td className="px-3 py-3 text-right"><PnlCell value={row.totalPL} /></td>

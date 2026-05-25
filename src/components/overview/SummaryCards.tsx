@@ -14,7 +14,7 @@ function MetricCard({ label, children, dark }: { label: string; children: React.
 }
 
 export default function SummaryCards() {
-  const { merged, lang, darkMode } = useStatement()
+  const { merged, lang, darkMode, masked } = useStatement()
   const t = createT(lang)
   if (!merged) return null
 
@@ -23,7 +23,7 @@ export default function SummaryCards() {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <MetricCard label={t('totalNav')} dark={darkMode}>
-        <span className="font-mono">${m.currentNav.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+        <span className="font-mono">{masked ? '$***' : `$${m.currentNav.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</span>
       </MetricCard>
       <MetricCard label={t('totalPL')} dark={darkMode}>
         <PnlCell value={m.totalPL} />
