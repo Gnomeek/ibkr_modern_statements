@@ -74,13 +74,18 @@ describe('mergeStatements', () => {
     expect(result.periodEnd.getMonth()).toBe(5) // June
   })
 
-  it('uses latest file NAV and TWR', () => {
+  it('uses latest file NAV and compounds TWR across files', () => {
     const s1 = makeStatement({ periodEnd: new Date('2025-12-31'), currentNav: 50000, twr: 0.05 })
     const s2 = makeStatement({ periodEnd: new Date('2026-06-30'), currentNav: 80000, twr: 0.09 })
     const result = mergeStatements([s1, s2])
     expect(result.currentNav).toBe(80000)
-    // TWR from latest file — IBKR's TWR is cumulative from account inception
-    expect(result.twr).toBe(0.09)
+    // compounded: (1.05 × 1.09) − 1 = 0.1445
+    expect(result.twr).toBeCloseTo(1.05 * 1.09 - 1, 6)
+  })
+
+  it('single file TWR is unchanged', () => {
+    const s = makeStatement({ twr: 0.185 })
+    expect(mergeStatements([s]).twr).toBeCloseTo(0.185, 6)
   })
 
   it('keeps distinct trades from both files', () => {
