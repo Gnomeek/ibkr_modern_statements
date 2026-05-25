@@ -1,5 +1,5 @@
 // src/context/StatementContext.tsx
-import { createContext, useState, useCallback, type ReactNode } from 'react'
+import { createContext, useState, useCallback, useMemo, type ReactNode } from 'react'
 import type { MergedStatementData, StatementData } from '../types/statement'
 import { parseStatement } from '../lib/parser'
 import { mergeStatements } from '../lib/merger'
@@ -29,9 +29,10 @@ export function StatementProvider({ children }: { children: ReactNode }) {
   const [lang, setLang] = useState<Lang>('en')
   const [darkMode, setDarkMode] = useState(true)
 
-  const merged: MergedStatementData | null = files.length > 0
-    ? mergeStatements(files.filter(f => !f.error).map(f => f.statement))
-    : null
+  const merged: MergedStatementData | null = useMemo(() => {
+    const validStatements = files.filter(f => !f.error).map(f => f.statement)
+    return validStatements.length > 0 ? mergeStatements(validStatements) : null
+  }, [files])
 
   const addFiles = useCallback((inputs: { name: string; text: string }[]) => {
     setFiles(prev => {
