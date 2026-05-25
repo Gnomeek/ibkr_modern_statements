@@ -41,7 +41,7 @@ function TopBar({ accountName, period, lang, darkMode, masked, isDemo, onUploadM
       <div className="max-w-7xl mx-auto flex items-center gap-4">
         <div className="flex-1 min-w-0 flex items-center gap-2">
           <div className="min-w-0">
-            <p className={`text-sm font-semibold truncate ${textPrimary}`}>{accountName}</p>
+            <p className={`text-sm font-semibold truncate ${textPrimary}`}>{masked ? '***' : accountName}</p>
             <p className={`text-xs ${textMuted}`}>{period}</p>
           </div>
           {isDemo && (
