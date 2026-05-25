@@ -66,8 +66,9 @@ export default function TradesTable() {
         onChange={setSelectedSymbols}
         dark={darkMode}
       />
-      <div className={`rounded-xl overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-white border border-gray-200 shadow-sm'}`}>
-        <table className="w-full text-sm">
+      <div className={`rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-white border border-gray-200 shadow-sm'}`}>
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[700px]">
           <thead className={darkMode ? 'border-b border-gray-700' : 'border-b border-gray-200'}>
             <tr>
               <Th label={t('date')} sk="dateTime" />
@@ -99,6 +100,7 @@ export default function TradesTable() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   )

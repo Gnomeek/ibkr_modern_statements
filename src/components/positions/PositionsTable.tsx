@@ -46,8 +46,9 @@ export default function PositionsTable() {
 
   return (
     <>
-      <div className={`rounded-xl overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-white border border-gray-200 shadow-sm'}`}>
-        <table className="w-full text-sm">
+      <div className={`rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-white border border-gray-200 shadow-sm'}`}>
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[860px]">
           <thead className={darkMode ? 'border-b border-gray-700' : 'border-b border-gray-200'}>
             <tr>
               {th(t('ticker'), 'symbol')}
@@ -86,6 +87,7 @@ export default function PositionsTable() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       {shareTarget && (
