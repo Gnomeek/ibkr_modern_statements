@@ -43,6 +43,11 @@ export interface StatementData {
   twr: number             // time-weighted return as decimal e.g. 0.09988
   cashBalance: number     // Cash row in Net Asset Value section
 
+  // Change in NAV — needed to compute correct return net of deposits/withdrawals
+  startingNav: number           // "Starting Value"
+  depositsWithdrawals: number   // "Deposits & Withdrawals" (net, can be negative)
+  endingNav: number             // "Ending Value" (should equal currentNav)
+
   // Per-ticker
   trades: Trade[]
   openPositions: OpenPosition[]
@@ -71,7 +76,10 @@ export interface MergedStatementData {
 
   currentNav: number
   twr: number
-  cashBalance: number     // from latest file
+  cashBalance: number
+  startingNav: number
+  depositsWithdrawals: number
+  endingNav: number
 
   trades: Trade[]                                    // deduplicated, all files
   openPositions: OpenPosition[]                      // from latest file only

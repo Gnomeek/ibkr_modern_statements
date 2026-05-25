@@ -15,7 +15,7 @@ const dict = {
   // Overview cards
   totalNav: { en: 'Total NAV', zh: '账户总市值' },
   totalPL: { en: 'Total P/L', zh: '总盈亏' },
-  totalReturn: { en: 'Total Return', zh: '总收益率' },
+  totalReturn: { en: 'Net Return', zh: '净投资收益率' },
   twr: { en: 'Time-Weighted Return', zh: '时间加权收益率' },
 
   // Positions table

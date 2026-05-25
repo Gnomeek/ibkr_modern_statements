@@ -47,8 +47,15 @@ export function buildPortfolioMetrics(data: MergedStatementData): PortfolioMetri
   const totalRealizedPL = data.realizedUnrealized.reduce((s, r) => s + r.realizedTotal, 0)
   const totalUnrealizedPL = data.realizedUnrealized.reduce((s, r) => s + r.unrealizedTotal, 0)
   const totalPL = totalRealizedPL + totalUnrealizedPL
-  const costBase = data.currentNav - totalPL
-  const totalReturnPct = costBase !== 0 ? (totalPL / costBase) * 100 : 0
+
+  // 正确的总盈亏 = 期末NAV - 期初NAV - 净入金
+  // 即扣除出入金影响后真正的投资收益
+  const netInvestmentGain = data.endingNav - data.startingNav - data.depositsWithdrawals
+
+  // 收益率分母 = 期初NAV + 净入金（简单近似，适合入金时间分散的情况）
+  // IBKR 自己算的 TWR 是更准确的时间加权版本，我们同时展示两个
+  const returnBase = data.startingNav + Math.max(0, data.depositsWithdrawals)
+  const totalReturnPct = returnBase !== 0 ? (netInvestmentGain / returnBase) * 100 : 0
 
   return {
     currentNav: data.currentNav,

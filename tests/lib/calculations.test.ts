@@ -12,6 +12,9 @@ const makeMerged = (): MergedStatementData => ({
   currentNav: 83175.33,
   twr: 0.09988,
   cashBalance: 1543.23,
+  startingNav: 51889.04,
+  depositsWithdrawals: 25133.52,
+  endingNav: 83175.33,
   hasOverlap: false,
   fileCount: 1,
   trades: [

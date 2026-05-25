@@ -22,6 +22,10 @@ export function mergeStatements(statements: StatementData[]): MergedStatementDat
     currentNav: latest.currentNav,
     twr: latest.twr,
     cashBalance: latest.cashBalance,
+    // 多文件时：起始 NAV 取最早文件，出入金累加所有文件（去重逻辑由 dedup trades 保证），ending 取最新
+    startingNav: sorted[0].startingNav,
+    depositsWithdrawals: statements.reduce((s, st) => s + st.depositsWithdrawals, 0),
+    endingNav: latest.endingNav,
     trades: allTrades,
     openPositions: latest.openPositions,
     realizedUnrealized: latest.realizedUnrealized,

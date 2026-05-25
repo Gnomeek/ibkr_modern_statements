@@ -25,6 +25,9 @@ export function parseStatement(csvText: string): StatementData {
     currentNav: 0,
     priorNav: 0,
     cashBalance: 0,
+    startingNav: 0,
+    depositsWithdrawals: 0,
+    endingNav: 0,
   }
 
   // 各 section 的 header 列名（不含 sectionName 和 rowType）
@@ -108,6 +111,16 @@ export function parseStatement(csvText: string): StatementData {
           result.currentNav = parseFloat(col('Current Total')) || 0
           result.priorNav   = parseFloat(col('Prior Total'))   || 0
         }
+        break
+      }
+
+      // ── 净资产变化 ──────────────────────────
+      case 'Change in NAV': {
+        const [fieldName, fieldValue] = rest
+        const v = parseFloat(fieldValue) || 0
+        if (fieldName === 'Starting Value')        result.startingNav          = v
+        if (fieldName === 'Deposits & Withdrawals') result.depositsWithdrawals = v
+        if (fieldName === 'Ending Value')           result.endingNav           = v
         break
       }
 
