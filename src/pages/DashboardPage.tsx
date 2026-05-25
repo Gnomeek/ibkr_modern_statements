@@ -89,9 +89,10 @@ export default function DashboardPage() {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<TabValue>('overview')
 
+  // 只在没有数据时（首次进入、非主动跳转）才重定向
   useEffect(() => {
-    if (!merged) navigate('/')
-  }, [merged, navigate])
+    if (!merged) navigate('/', { replace: true })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!merged) return null
 

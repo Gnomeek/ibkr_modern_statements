@@ -2,24 +2,61 @@
 import { useState } from 'react'
 import { useStatement } from '../../hooks/useStatement'
 import { createT } from '../../i18n'
+import type { Trade } from '../../types/statement'
 import TickerFilter from './TickerFilter'
 import PnlCell from '../ui/PnlCell'
 
+type SortKey = 'dateTime' | 'symbol' | 'quantity' | 'price' | 'proceeds' | 'commission' | 'realizedPL'
+
 function formatDateTime(s: string) {
   return s.replace(', ', ' ')
+}
+
+function sortTrades(trades: Trade[], key: SortKey, asc: boolean): Trade[] {
+  return [...trades].sort((a, b) => {
+    let cmp: number
+    if (key === 'dateTime' || key === 'symbol') {
+      cmp = a[key].localeCompare(b[key])
+    } else {
+      cmp = Math.abs(a[key] as number) - Math.abs(b[key] as number)
+    }
+    return asc ? cmp : -cmp
+  })
 }
 
 export default function TradesTable() {
   const { merged, lang, darkMode } = useStatement()
   const t = createT(lang)
   const [selectedSymbols, setSelectedSymbols] = useState<string[]>([])
+  const [sortKey, setSortKey] = useState<SortKey>('dateTime')
+  const [sortAsc, setSortAsc] = useState(false)
 
   if (!merged) return null
 
   const allSymbols = [...new Set(merged.trades.map(tr => tr.symbol))].sort()
+
   const filtered = selectedSymbols.length === 0
     ? merged.trades
     : merged.trades.filter(tr => selectedSymbols.includes(tr.symbol))
+
+  const sorted = sortTrades(filtered, sortKey, sortAsc)
+
+  function onSort(key: SortKey) {
+    if (sortKey === key) setSortAsc(v => !v)
+    else { setSortKey(key); setSortAsc(false) }
+  }
+
+  function Th({ label, sk }: { label: string; sk: SortKey }) {
+    const active = sortKey === sk
+    return (
+      <th
+        onClick={() => onSort(sk)}
+        className="text-left px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-300 transition-colors"
+      >
+        {label} {active ? (sortAsc ? '↑' : '↓') : ''}
+      </th>
+    )
+  }
 
   return (
     <div>
@@ -33,14 +70,19 @@ export default function TradesTable() {
         <table className="w-full text-sm">
           <thead className={darkMode ? 'border-b border-gray-700' : 'border-b border-gray-200'}>
             <tr>
-              {[t('date'), t('ticker'), t('side'), t('qty'), t('price'), t('proceeds'), t('commission'), t('realizedPL')].map(h => (
-                <th key={h} className="text-left px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{h}</th>
-              ))}
+              <Th label={t('date')} sk="dateTime" />
+              <Th label={t('ticker')} sk="symbol" />
+              <th className="text-left px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{t('side')}</th>
+              <Th label={t('qty')} sk="quantity" />
+              <Th label={t('price')} sk="price" />
+              <Th label={t('proceeds')} sk="proceeds" />
+              <Th label={t('commission')} sk="commission" />
+              <Th label={t('realizedPL')} sk="realizedPL" />
             </tr>
           </thead>
           <tbody className={`divide-y ${darkMode ? 'divide-gray-700' : 'divide-gray-100'}`}>
-            {filtered.map((tr, i) => (
-              <tr key={i} className={`${darkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'} transition-colors`}>
+            {sorted.map((tr, i) => (
+              <tr key={`${tr.symbol}|${tr.dateTime}|${i}`} className={`${darkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'} transition-colors`}>
                 <td className="px-3 py-2 font-mono text-xs text-gray-400">{formatDateTime(tr.dateTime)}</td>
                 <td className="px-3 py-2 font-mono font-semibold">{tr.symbol}</td>
                 <td className="px-3 py-2">

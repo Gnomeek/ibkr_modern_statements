@@ -87,10 +87,10 @@ export default function UploadPage() {
           </button>
           {showHint && (
             <div className="mt-3 bg-gray-800 rounded-lg p-4 text-sm text-gray-300 space-y-2">
-              <p>1. Log in to IBKR → <strong>Reports</strong> → <strong>Statements</strong></p>
-              <p>2. Select <strong>Activity</strong> statement type</p>
-              <p>3. Choose date range (max 365 days) → <strong>CSV</strong> format</p>
-              <p>4. Download and upload here. For longer history, export multiple CSVs.</p>
+              <p>1. {t('exportStep1')}</p>
+              <p>2. {t('exportStep2')}</p>
+              <p>3. {t('exportStep3')}</p>
+              <p>4. {t('exportStep4')}</p>
               <img src="assets/how-to-get-ibkr-statements.jpeg" alt="IBKR export guide" className="rounded mt-2 w-full" />
             </div>
           )}
