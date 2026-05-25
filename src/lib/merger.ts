@@ -20,11 +20,9 @@ export function mergeStatements(statements: StatementData[]): MergedStatementDat
     accountId: latest.accountId,
     baseCurrency: latest.baseCurrency,
     currentNav: latest.currentNav,
-    // 多文件时链式复合：(1+r1)×(1+r2)×…−1，与 IBKR 首页的跨期 TWR 一致
-    // 单文件时退化为该文件的 TWR
+    // Chain-link compound TWR across files: (1+r1)×(1+r2)×…−1
     twr: sorted.reduce((acc, s) => (1 + acc) * (1 + s.twr) - 1, 0),
     cashBalance: latest.cashBalance,
-    // 多文件时：起始 NAV 取最早文件，出入金累加所有文件（去重逻辑由 dedup trades 保证），ending 取最新
     startingNav: sorted[0].startingNav,
     depositsWithdrawals: statements.reduce((s, st) => s + st.depositsWithdrawals, 0),
     endingNav: latest.endingNav,

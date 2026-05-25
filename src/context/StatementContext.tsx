@@ -41,12 +41,11 @@ export function StatementProvider({ children }: { children: ReactNode }) {
     return validStatements.length > 0 ? mergeStatements(validStatements) : null
   }, [files])
 
-  // 真实数据优先，其次 demo
   const merged = realMerged ?? demoMerged
   const isDemo = realMerged === null && demoMerged !== null
 
   const addFiles = useCallback((inputs: { name: string; text: string }[]) => {
-    setDemoMerged(null) // 上传真实文件时退出 demo 模式
+    setDemoMerged(null)
     setFiles(prev => {
       const next = [...prev]
       for (const { name, text } of inputs) {

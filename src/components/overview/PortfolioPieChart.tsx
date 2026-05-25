@@ -38,7 +38,6 @@ export default function PortfolioPieChart() {
     .map(p => ({ name: p.symbol, value: parseFloat(p.marketValue.toFixed(2)) }))
     .sort((a, b) => b.value - a.value)
 
-  // 把 Cash 作为一个条目加入（若存在）
   const cashValue = parseFloat((merged.cashBalance ?? 0).toFixed(2))
   const data = cashValue > 0
     ? [...stockData, { name: 'Cash', value: cashValue }]
@@ -56,7 +55,6 @@ export default function PortfolioPieChart() {
       <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">Portfolio Allocation</h3>
 
       <div className="flex flex-col lg:flex-row items-center gap-6">
-        {/* 饼图 + 中心文字 */}
         <div className="relative shrink-0" style={{ width: 240, height: 240 }}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -78,7 +76,6 @@ export default function PortfolioPieChart() {
             </PieChart>
           </ResponsiveContainer>
 
-          {/* 中心信息：悬停时显示选中项，否则显示总市值 */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
             {active ? (
               <>
@@ -101,7 +98,6 @@ export default function PortfolioPieChart() {
           </div>
         </div>
 
-        {/* 图例：两列，含占比 */}
         <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 flex-1 w-full">
           {data.map((item, i) => {
             const pct = ((item.value / total) * 100).toFixed(1)

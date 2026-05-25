@@ -17,7 +17,7 @@ function fmt(value: number, format: 'currency' | 'percent') {
 export default function PnlCell({ value, format = 'currency', className = '' }: Props) {
   const { masked } = useStatement()
   const color = value >= 0 ? 'text-green-400' : 'text-red-400'
-  // 百分比不脱敏（收益率不泄露绝对金额）
+  // Percentages are never masked — return rates reveal no absolute amounts
   const display = masked && format === 'currency' ? (value >= 0 ? '+***' : '-***') : fmt(value, format)
   return <span className={`font-mono ${color} ${className}`}>{display}</span>
 }

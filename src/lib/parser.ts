@@ -1,15 +1,8 @@
-// src/lib/parser.ts
 import Papa from 'papaparse'
 import type { StatementData, Trade, OpenPosition, RealizedUnrealizedSummary } from '../types/statement'
 
-// ─────────────────────────────────────────────
-// 类型定义
-// ─────────────────────────────────────────────
 type Row = string[]
 
-// ─────────────────────────────────────────────
-// 主解析函数
-// ─────────────────────────────────────────────
 export function parseStatement(csvText: string): StatementData {
   const { data } = Papa.parse<Row>(csvText, { skipEmptyLines: true })
 
@@ -30,7 +23,6 @@ export function parseStatement(csvText: string): StatementData {
     endingNav: 0,
   }
 
-  // 各 section 的 header 列名（不含 sectionName 和 rowType）
   let navHeaderCols: string[] = []
   let tradeHeaderCols: string[] = []
   let openPosHeaderCols: string[] = []
@@ -38,42 +30,36 @@ export function parseStatement(csvText: string): StatementData {
   let currentSection = ''
 
   for (const row of data) {
-    // 每行格式: [sectionName, rowType, ...rest]
     const [sectionName, rowType, ...rest] = row
     if (!sectionName) continue
 
-    // ── Header 行: 记录列名 ──────────────────
     if (rowType === 'Header') {
       currentSection = sectionName
       switch (sectionName) {
-        // Bug 3 修复: TWR header 只有一列，跳过避免覆盖资产类别 header
+        // The TWR header row has only one column — skip to avoid overwriting the asset-class header
         case 'Net Asset Value':
           if (rest.length > 1) navHeaderCols = rest
           break
-        // Bug 1 修复: 只记录 Stocks trades 的 header
-        // Stocks header 含 'Realized P/L' 列，Forex header 不含
+        // IBKR emits separate Trades headers for Stocks and Forex; Stocks header includes 'Realized P/L'
         case 'Trades':
           if (rest.includes('Realized P/L')) tradeHeaderCols = rest
           break
-        case 'Open Positions':                          openPosHeaderCols = rest; break
-        case 'Realized & Unrealized Performance Summary': ruHeaderCols = rest; break
+        case 'Open Positions':                            openPosHeaderCols = rest; break
+        case 'Realized & Unrealized Performance Summary': ruHeaderCols = rest;      break
       }
       continue
     }
 
-    // ── 只处理 Data 行 ───────────────────────
     if (rowType !== 'Data') continue
 
-    // section 可能在 Header 之后发生变化
     currentSection = sectionName
 
     switch (currentSection) {
 
-      // ── 报表元数据 ──────────────────────────
       case 'Statement': {
         const [fieldName, fieldValue] = rest
         if (fieldName === 'Period') {
-          // Bug 4 修复: 统一 em-dash/en-dash/hyphen 为标准 ASCII 连字符再切割
+          // Normalize em/en-dashes that IBKR sometimes uses as the range separator
           const normalized = fieldValue.replace(/\s[–—]\s/g, ' - ')
           const parts = normalized.split(' - ')
           result.periodStart = parsePeriodDate(parts[0].trim())
@@ -82,7 +68,6 @@ export function parseStatement(csvText: string): StatementData {
         break
       }
 
-      // ── 账户信息 ───────────────────────────
       case 'Account Information': {
         const [fieldName, fieldValue] = rest
         if (fieldName === 'Name')          result.accountName  = fieldValue
@@ -91,22 +76,15 @@ export function parseStatement(csvText: string): StatementData {
         break
       }
 
-      // ── 净资产值（两种子格式） ───────────────
       case 'Net Asset Value': {
-        // TWR 行: rest 长度为 1，值形如 "9.988250429%"
+        // TWR row has a single value like "9.988250429%"
         if (rest.length === 1 && rest[0].endsWith('%')) {
           result.twr = parseFloat(rest[0]) / 100
           break
         }
-
-        // 资产类别行: 用 navHeaderCols 定位列
-        // navHeaderCols = ['Asset Class','Prior Total','Current Long','Current Short','Current Total','Change']
-        // rest[0] = Asset Class 的值
         const col = (name: string) => rest[navHeaderCols.indexOf(name)]
         const assetClass = rest[0].trim()
-        if (assetClass === 'Cash') {
-          result.cashBalance = parseFloat(col('Current Total')) || 0
-        }
+        if (assetClass === 'Cash')  result.cashBalance = parseFloat(col('Current Total')) || 0
         if (assetClass === 'Total') {
           result.currentNav = parseFloat(col('Current Total')) || 0
           result.priorNav   = parseFloat(col('Prior Total'))   || 0
@@ -114,26 +92,19 @@ export function parseStatement(csvText: string): StatementData {
         break
       }
 
-      // ── 净资产变化 ──────────────────────────
       case 'Change in NAV': {
         const [fieldName, fieldValue] = rest
         const v = parseFloat(fieldValue) || 0
-        if (fieldName === 'Starting Value')        result.startingNav          = v
+        if (fieldName === 'Starting Value')         result.startingNav          = v
         if (fieldName === 'Deposits & Withdrawals') result.depositsWithdrawals = v
         if (fieldName === 'Ending Value')           result.endingNav           = v
         break
       }
 
-      // ── 盈亏汇总 ───────────────────────────
       case 'Realized & Unrealized Performance Summary': {
-        // ruHeaderCols = ['Asset Category','Symbol','Cost Adj.','Realized S/T Profit','Realized S/T Loss',
-        //                 'Realized L/T Profit','Realized L/T Loss','Realized Total',
-        //                 'Unrealized S/T Profit','Unrealized S/T Loss','Unrealized L/T Profit',
-        //                 'Unrealized L/T Loss','Unrealized Total','Total','Code']
-        // Bug 2 修复: 跳过 Forex 行和各类 Total 汇总行，只保留 Stocks 标的
         const col = (name: string) => rest[ruHeaderCols.indexOf(name)]
-        const assetCategory = col('Asset Category')
-        if (assetCategory !== 'Stocks') break
+        // Skip Forex rows and aggregate Total rows
+        if (col('Asset Category') !== 'Stocks') break
         const symbol = col('Symbol')
         if (!symbol || symbol === 'Total') break
         result.realizedUnrealized.push({
@@ -144,43 +115,29 @@ export function parseStatement(csvText: string): StatementData {
         break
       }
 
-      // ── 持仓 ────────────────────────────────
       case 'Open Positions': {
-        // openPosHeaderCols = ['DataDiscriminator','Asset Category','Currency','Symbol','Open',
-        //                      'Quantity','Mult','Cost Price','Cost Basis','Close Price','Value',
-        //                      'Unrealized P/L','Code']
-        // 只取 Summary 行
         const col = (name: string) => rest[openPosHeaderCols.indexOf(name)]
         if (col('DataDiscriminator') !== 'Summary') break
-
         const symbol = col('Symbol')
         if (!symbol) break
-
         result.openPositions.push({
           symbol,
-          quantity:    parseFloat(col('Quantity'))       || 0,
-          costPrice:   parseFloat(col('Cost Price'))     || 0,
-          costBasis:   parseFloat(col('Cost Basis'))     || 0,
-          closePrice:  parseFloat(col('Close Price'))    || 0,
-          marketValue: parseFloat(col('Value'))          || 0,
+          quantity:     parseFloat(col('Quantity'))       || 0,
+          costPrice:    parseFloat(col('Cost Price'))     || 0,
+          costBasis:    parseFloat(col('Cost Basis'))     || 0,
+          closePrice:   parseFloat(col('Close Price'))    || 0,
+          marketValue:  parseFloat(col('Value'))          || 0,
           unrealizedPL: parseFloat(col('Unrealized P/L')) || 0,
         })
         break
       }
 
-      // ── 交易记录 ────────────────────────────
       case 'Trades': {
-        // tradeHeaderCols = ['DataDiscriminator','Asset Category','Currency','Symbol','Date/Time',
-        //                    'Quantity','T. Price','C. Price','Proceeds','Comm/Fee','Basis',
-        //                    'Realized P/L','MTM P/L','Code']
-        // Bug 1 修复: 只取 Stocks Order 行，跳过 Forex
         const col = (name: string) => rest[tradeHeaderCols.indexOf(name)]
         if (col('DataDiscriminator') !== 'Order') break
         if (col('Asset Category') !== 'Stocks') break
-
         const symbol = col('Symbol')
         if (!symbol) break
-
         result.trades.push({
           symbol,
           dateTime:   col('Date/Time') ?? '',
@@ -205,9 +162,6 @@ export function parseStatement(csvText: string): StatementData {
   return result as StatementData
 }
 
-// ─────────────────────────────────────────────
-// 日期解析: "January 1, 2026" 或 "May 22, 2026"
-// ─────────────────────────────────────────────
 function parsePeriodDate(s: string): Date {
   const date = new Date(s)
   if (isNaN(date.getTime())) throw new Error(`Cannot parse date: "${s}"`)

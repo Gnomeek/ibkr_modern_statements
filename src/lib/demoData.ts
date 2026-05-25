@@ -1,5 +1,4 @@
-// src/lib/demoData.ts
-// 演示用虚构数据，与任何真实账户无关
+// Synthetic demo data — no real account information
 import type { MergedStatementData } from '../types/statement'
 
 export function buildDemoData(): MergedStatementData {

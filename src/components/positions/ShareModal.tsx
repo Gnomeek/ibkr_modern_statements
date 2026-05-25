@@ -75,8 +75,7 @@ export default function ShareModal({ ticker, onClose }: Props) {
           </button>
         </div>
 
-        {/* Card preview — visual only, scaled with CSS transform */}
-        {/* 卡片 375×500，缩放 0.712 后实际占 267×356px */}
+        {/* Card preview scaled to fit modal — 375×500 at 0.712 = 267×356px */}
         <div className="flex justify-center mb-4 overflow-hidden" style={{ height: 356 }}>
           <div style={{ transform: 'scale(0.712)', transformOrigin: 'top center' }}>
             <ShareCard {...cardProps} />

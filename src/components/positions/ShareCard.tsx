@@ -20,7 +20,6 @@ function fmtUsd(v: number) {
   return `${v >= 0 ? '+' : '-'}$${Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
-// 根据字符串长度缩小大数字字号，防止溢出
 function bigFontSize(text: string): number {
   const len = text.length
   if (len <= 8)  return 52

@@ -2,7 +2,7 @@
 import html2canvas from 'html2canvas'
 
 export async function exportCardAsPng(element: HTMLElement, filename: string): Promise<void> {
-  // 至少 3x，Retina 屏跟随设备像素比，保证导出清晰
+  // At least 3× — follow device pixel ratio for crisp Retina output
   const scale = Math.max(3, window.devicePixelRatio ?? 2)
   const canvas = await html2canvas(element, {
     scale,
