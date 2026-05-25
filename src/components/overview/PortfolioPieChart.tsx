@@ -8,6 +8,7 @@ const COLORS = ['#00ff88', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'
 export default function PortfolioPieChart() {
   const { merged, darkMode, masked } = useStatement()
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
+  const [animationDone, setAnimationDone] = useState(false)
   if (!merged) return null
 
   const stockData = merged.openPositions
@@ -41,8 +42,10 @@ export default function PortfolioPieChart() {
                 innerRadius={68} outerRadius={108}
                 paddingAngle={2}
                 dataKey="value"
-                onMouseEnter={(_, i) => setActiveIndex(i)}
-                onMouseLeave={() => setActiveIndex(null)}
+                isAnimationActive={true}
+                onAnimationEnd={() => setAnimationDone(true)}
+                onMouseEnter={animationDone ? (_, i) => setActiveIndex(i) : undefined}
+                onMouseLeave={animationDone ? () => setActiveIndex(null) : undefined}
               >
                 {data.map((_, i) => {
                   const isActive = activeIndex === i
@@ -93,8 +96,8 @@ export default function PortfolioPieChart() {
               <div
                 key={item.name}
                 className="flex items-center gap-2 cursor-default"
-                onMouseEnter={() => setActiveIndex(i)}
-                onMouseLeave={() => setActiveIndex(null)}
+                onMouseEnter={animationDone ? () => setActiveIndex(i) : undefined}
+                onMouseLeave={animationDone ? () => setActiveIndex(null) : undefined}
                 style={{ opacity: activeIndex !== null && !isActive ? 0.45 : 1, transition: 'opacity 0.15s' }}
               >
                 <span style={{ width: 8, height: 8, borderRadius: 2, background: COLORS[i % COLORS.length], flexShrink: 0 }} />
