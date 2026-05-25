@@ -1,0 +1,45 @@
+Statement,Header,Field Name,Field Value
+Statement,Data,BrokerName,Interactive Brokers LLC
+Statement,Data,BrokerAddress,"One Pickwick Plaza, Greenwich, CT 06830"
+Statement,Data,Title,Activity Statement
+Statement,Data,Period,"January 1, 2025 - December 31, 2025"
+Statement,Data,WhenGenerated,"2025-12-31, 23:59:59 EST"
+Account Information,Header,Field Name,Field Value
+Account Information,Data,Name,Demo User
+Account Information,Data,Account,UDEMO001
+Account Information,Data,Account Type,Individual
+Account Information,Data,Customer Type,Individual
+Account Information,Data,Account Capabilities,Margin
+Account Information,Data,Base Currency,USD
+Net Asset Value,Header,Asset Class,Prior Total,Current Long,Current Short,Current Total,Change
+Net Asset Value,Data,Cash ,2000.00,3000.00,0,3000.00,1000.00
+Net Asset Value,Data,Stock,48000.00,68000.00,0,68000.00,20000.00
+Net Asset Value,Data,Total,50000.00,71000.00,0,71000.00,21000.00
+Net Asset Value,Header,Time Weighted Rate of Return
+Net Asset Value,Data,18.500000000%
+Change in NAV,Header,Field Name,Field Value
+Change in NAV,Data,Starting Value,50000.00
+Change in NAV,Data,Mark-to-Market,8500.00
+Change in NAV,Data,Deposits & Withdrawals,10000.00
+Change in NAV,Data,Dividends,120.00
+Change in NAV,Data,Withholding Tax,-12.00
+Change in NAV,Data,Interest,2.50
+Change in NAV,Data,Commissions,-5.00
+Change in NAV,Data,Ending Value,71000.00
+Realized & Unrealized Performance Summary,Header,Asset Category,Symbol,Cost Adj.,Realized S/T Profit,Realized S/T Loss,Realized L/T Profit,Realized L/T Loss,Realized Total,Unrealized S/T Profit,Unrealized S/T Loss,Unrealized L/T Profit,Unrealized L/T Loss,Unrealized Total,Total,Code
+Realized & Unrealized Performance Summary,Data,Stocks,AAPL,0,850.00,0,0,0,850.00,1200.00,0,0,0,1200.00,2050.00,
+Realized & Unrealized Performance Summary,Data,Stocks,MSFT,0,0,0,0,0,0,3200.00,0,0,0,3200.00,3200.00,
+Realized & Unrealized Performance Summary,Data,Stocks,TSLA,0,0,-420.00,0,0,-420.00,0,0,0,0,0,-420.00,
+Open Positions,Header,DataDiscriminator,Asset Category,Currency,Symbol,Open,Quantity,Mult,Cost Price,Cost Basis,Close Price,Value,Unrealized P/L,Code
+Open Positions,Data,Summary,Stocks,USD,AAPL,-,20,1,180.00,3600.00,240.00,4800.00,1200.00,
+Open Positions,Data,Summary,Stocks,USD,MSFT,-,15,1,320.00,4800.00,533.33,8000.00,3200.00,
+Trades,Header,DataDiscriminator,Asset Category,Currency,Symbol,Date/Time,Quantity,T. Price,C. Price,Proceeds,Comm/Fee,Basis,Realized P/L,MTM P/L,Code
+Trades,Data,Order,Stocks,USD,AAPL,"2025-01-10, 09:30:00",20,180.00,182.00,-3600.00,-0.35,3600.35,0,40.00,O
+Trades,SubTotal,,Stocks,USD,AAPL,,20,,,-3600.00,-0.35,3600.35,0,40.00,
+Trades,Data,Order,Stocks,USD,AAPL,"2025-06-15, 10:00:00",-10,265.00,264.00,2650.00,-0.35,-1800.00,850.00,-10.00,C
+Trades,SubTotal,,Stocks,USD,AAPL,,-10,,,2650.00,-0.35,-1800.00,850.00,-10.00,
+Trades,Data,Order,Stocks,USD,MSFT,"2025-02-01, 09:45:00",15,320.00,318.00,-4800.00,-0.30,4800.30,0,-30.00,O
+Trades,SubTotal,,Stocks,USD,MSFT,,15,,,-4800.00,-0.30,4800.30,0,-30.00,
+Trades,Data,Order,Stocks,USD,TSLA,"2025-03-01, 10:00:00",10,220.00,222.00,-2200.00,-0.30,2200.30,0,20.00,O
+Trades,Data,Order,Stocks,USD,TSLA,"2025-05-20, 14:30:00",-10,177.80,178.00,1778.00,-0.25,-2200.30,-420.00,2.00,C
+Trades,SubTotal,,Stocks,USD,TSLA,,0,,,1778.00,-0.25,-2200.30,-420.00,2.00,

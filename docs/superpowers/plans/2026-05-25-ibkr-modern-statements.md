@@ -313,8 +313,8 @@ const csv = readFileSync(
 describe('parseStatement', () => {
   it('parses account metadata', () => {
     const result = parseStatement(csv)
-    expect(result.accountName).toBe('shuyu zhao')
-    expect(result.accountId).toBe('U13263688')
+    expect(result.accountName).toBe('Demo User')
+    expect(result.accountId).toBe('UDEMO001')
     expect(result.baseCurrency).toBe('USD')
   })
 
@@ -1422,7 +1422,7 @@ export default function TradesTable() { return <div /> }
 
 - [ ] **Step 3: Verify dashboard renders**
 
-Upload the example CSV, click "Analyze →". Expected: dashboard with three tabs visible, top bar shows "shuyu zhao" and period.
+Upload the example CSV, click "Analyze →". Expected: dashboard with three tabs visible, top bar shows "Demo User" and period.
 
 - [ ] **Step 4: Commit**
 
