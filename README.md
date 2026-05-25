@@ -6,6 +6,19 @@ A client-side web app for analyzing Interactive Brokers activity statements. Upl
 
 ---
 
+## Screenshots
+
+<table>
+  <tr>
+    <td><img src="assets/demo-home-page-dark-unmasked.jpeg" alt="Dashboard dark mode" /></td>
+    <td><img src="assets/demo-home-page-light-masked.jpeg" alt="Dashboard light mode with privacy mask" /></td>
+  </tr>
+</table>
+
+<img src="assets/demo-ticker-share.jpeg" alt="Share card modal" />
+
+---
+
 ## Features
 
 - **Demo mode** — click "Try Demo" on the upload page to explore with synthetic data, no CSV needed.
@@ -36,6 +49,8 @@ A client-side web app for analyzing Interactive Brokers activity statements. Upl
 2. Select statement type: **Activity**
 3. Set date range (max 365 days per export) → format: **CSV**
 4. For history longer than 365 days, export multiple CSVs and upload them together.
+
+<img src="assets/how-to-get-ibkr-statements.jpeg" alt="IBKR export guide" width="480" />
 
 ---
 

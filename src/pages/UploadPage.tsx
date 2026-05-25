@@ -111,7 +111,6 @@ export default function UploadPage() {
               <p>2. {t('exportStep2')}</p>
               <p>3. {t('exportStep3')}</p>
               <p>4. {t('exportStep4')}</p>
-              <img src="assets/how-to-get-ibkr-statements.jpeg" alt="IBKR export guide" className="rounded mt-2 w-full" />
             </div>
           )}
         </div>
