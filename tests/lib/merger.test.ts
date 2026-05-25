@@ -26,6 +26,7 @@ const makeStatement = (override: Partial<StatementData> = {}): StatementData => 
   currentNav: 80000,
   priorNav: 50000,
   twr: 0.09,
+  cashBalance: 1000,
   trades: [makeTrade()],
   openPositions: [],
   realizedUnrealized: [],

@@ -29,19 +29,24 @@ function ActiveSlice(props: SliceProps) {
 }
 
 export default function PortfolioPieChart() {
-  const { merged, darkMode } = useStatement()
+  const { merged, darkMode, masked } = useStatement()
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
   if (!merged) return null
 
-  const total = merged.openPositions.reduce((s, p) => s + (p.marketValue > 0 ? p.marketValue : 0), 0)
-
-  const data = merged.openPositions
+  const stockData = merged.openPositions
     .filter(p => p.marketValue > 0)
     .map(p => ({ name: p.symbol, value: parseFloat(p.marketValue.toFixed(2)) }))
     .sort((a, b) => b.value - a.value)
 
+  // 把 Cash 作为一个条目加入（若存在）
+  const cashValue = parseFloat((merged.cashBalance ?? 0).toFixed(2))
+  const data = cashValue > 0
+    ? [...stockData, { name: 'Cash', value: cashValue }]
+    : stockData
+
   if (data.length === 0) return null
 
+  const total = data.reduce((s, d) => s + d.value, 0)
   const active = activeIndex !== null ? data[activeIndex] : null
   const textColor = darkMode ? '#fff' : '#111827'
   const mutedColor = darkMode ? '#9ca3af' : '#6b7280'
@@ -81,13 +86,15 @@ export default function PortfolioPieChart() {
                   {((active.value / total) * 100).toFixed(1)}%
                 </span>
                 <span style={{ fontSize: 11, color: mutedColor, marginTop: 2 }}>{active.name}</span>
-                <span style={{ fontSize: 11, color: mutedColor }}>${active.value.toLocaleString()}</span>
+                <span style={{ fontSize: 11, color: mutedColor }}>
+                  {masked ? '$***' : `$${active.value.toLocaleString()}`}
+                </span>
               </>
             ) : (
               <>
                 <span style={{ fontSize: 11, color: mutedColor }}>Total</span>
                 <span style={{ fontSize: 14, fontWeight: 700, color: textColor, fontFamily: 'monospace' }}>
-                  ${total.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                  {masked ? '$***' : `$${total.toLocaleString('en-US', { maximumFractionDigits: 0 })}`}
                 </span>
               </>
             )}

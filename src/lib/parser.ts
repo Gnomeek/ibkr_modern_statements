@@ -24,6 +24,7 @@ export function parseStatement(csvText: string): StatementData {
     twr: 0,
     currentNav: 0,
     priorNav: 0,
+    cashBalance: 0,
   }
 
   // 各 section 的 header 列名（不含 sectionName 和 rowType）
@@ -99,7 +100,10 @@ export function parseStatement(csvText: string): StatementData {
         // navHeaderCols = ['Asset Class','Prior Total','Current Long','Current Short','Current Total','Change']
         // rest[0] = Asset Class 的值
         const col = (name: string) => rest[navHeaderCols.indexOf(name)]
-        const assetClass = rest[0]
+        const assetClass = rest[0].trim()
+        if (assetClass === 'Cash') {
+          result.cashBalance = parseFloat(col('Current Total')) || 0
+        }
         if (assetClass === 'Total') {
           result.currentNav = parseFloat(col('Current Total')) || 0
           result.priorNav   = parseFloat(col('Prior Total'))   || 0

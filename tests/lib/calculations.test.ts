@@ -11,6 +11,7 @@ const makeMerged = (): MergedStatementData => ({
   baseCurrency: 'USD',
   currentNav: 83175.33,
   twr: 0.09988,
+  cashBalance: 1543.23,
   hasOverlap: false,
   fileCount: 1,
   trades: [

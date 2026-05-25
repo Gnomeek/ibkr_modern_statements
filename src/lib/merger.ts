@@ -21,6 +21,7 @@ export function mergeStatements(statements: StatementData[]): MergedStatementDat
     baseCurrency: latest.baseCurrency,
     currentNav: latest.currentNav,
     twr: latest.twr,
+    cashBalance: latest.cashBalance,
     trades: allTrades,
     openPositions: latest.openPositions,
     realizedUnrealized: latest.realizedUnrealized,

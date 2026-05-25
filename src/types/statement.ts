@@ -41,6 +41,7 @@ export interface StatementData {
   currentNav: number
   priorNav: number
   twr: number             // time-weighted return as decimal e.g. 0.09988
+  cashBalance: number     // Cash row in Net Asset Value section
 
   // Per-ticker
   trades: Trade[]
@@ -70,6 +71,7 @@ export interface MergedStatementData {
 
   currentNav: number
   twr: number
+  cashBalance: number     // from latest file
 
   trades: Trade[]                                    // deduplicated, all files
   openPositions: OpenPosition[]                      // from latest file only
