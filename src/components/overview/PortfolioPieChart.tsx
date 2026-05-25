@@ -1,32 +1,9 @@
 // src/components/overview/PortfolioPieChart.tsx
 import { useState } from 'react'
-import { PieChart, Pie, Cell, Sector, ResponsiveContainer } from 'recharts'
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
 import { useStatement } from '../../hooks/useStatement'
 
 const COLORS = ['#00ff88', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316', '#ec4899']
-
-interface SliceProps {
-  cx: number; cy: number
-  innerRadius: number; outerRadius: number
-  startAngle: number; endAngle: number
-  fill: string
-  active: boolean
-}
-
-function ActiveSlice(props: SliceProps) {
-  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, active } = props
-  return (
-    <Sector
-      cx={cx} cy={cy}
-      innerRadius={innerRadius}
-      outerRadius={active ? outerRadius + 8 : outerRadius}
-      startAngle={startAngle} endAngle={endAngle}
-      fill={fill}
-      opacity={active ? 1 : 0.75}
-      style={{ transition: 'all 0.15s ease', cursor: 'pointer' }}
-    />
-  )
-}
 
 export default function PortfolioPieChart() {
   const { merged, darkMode, masked } = useStatement()
@@ -66,12 +43,22 @@ export default function PortfolioPieChart() {
                 dataKey="value"
                 onMouseEnter={(_, i) => setActiveIndex(i)}
                 onMouseLeave={() => setActiveIndex(null)}
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                activeShape={(props: any) => <ActiveSlice {...props} active={props.index === activeIndex} />}
               >
-                {data.map((_, i) => (
-                  <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                ))}
+                {data.map((_, i) => {
+                  const isActive = activeIndex === i
+                  const hasHover = activeIndex !== null
+                  return (
+                    <Cell
+                      key={i}
+                      fill={COLORS[i % COLORS.length]}
+                      opacity={hasHover && !isActive ? 0.4 : 1}
+                      stroke={isActive ? COLORS[i % COLORS.length] : 'none'}
+                      strokeWidth={isActive ? 2 : 0}
+                      strokeOpacity={0.6}
+                      style={{ outline: 'none', transition: 'opacity 0.15s' }}
+                    />
+                  )
+                })}
               </Pie>
             </PieChart>
           </ResponsiveContainer>
