@@ -86,4 +86,8 @@ describe('mergeStatements', () => {
     const result = mergeStatements([s1, s2])
     expect(result.trades).toHaveLength(2)
   })
+
+  it('throws on empty input', () => {
+    expect(() => mergeStatements([])).toThrow('No statements provided')
+  })
 })
