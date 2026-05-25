@@ -1,8 +1,10 @@
 # IBKR Modern Statements
 
+![Vercel Deploy](https://deploy-badge.vercel.app/vercel/ibkr-stats)
+
 A client-side web app for analyzing Interactive Brokers activity statements. Upload your CSV exports and get a clean dashboard — no data ever leaves your browser.
 
-**Live demo:** _(deploy to Vercel and paste URL here)_
+**Live demo:** https://ibkr-stats.vercel.app/
 
 ---
 
