@@ -90,17 +90,17 @@ Vercel auto-detects Vite: build command `npm run build`, output directory `dist`
 
 ## Tech stack
 
-| Layer | Choice |
-|---|---|
-| Framework | React 18 + TypeScript |
-| Bundler | Vite |
-| Styling | Tailwind CSS v4 |
-| Components | Base UI (MUI headless) |
-| Charts | Recharts |
-| CSV parsing | PapaParse |
-| Image export | html2canvas |
-| Routing | React Router v6 (hash mode) |
-| Tests | Vitest |
+| Layer        | Choice                      |
+| ------------ | --------------------------- |
+| Framework    | React 18 + TypeScript       |
+| Bundler      | Vite                        |
+| Styling      | Tailwind CSS v4             |
+| Components   | Base UI (MUI headless)      |
+| Charts       | Recharts                    |
+| CSV parsing  | PapaParse                   |
+| Image export | html2canvas                 |
+| Routing      | React Router v6 (hash mode) |
+| Tests        | Vitest                      |
 
 ---
 

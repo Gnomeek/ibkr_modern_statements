@@ -2,8 +2,8 @@
 
 export interface Trade {
   symbol: string
-  dateTime: string        // raw string from CSV e.g. "2026-01-05, 09:48:12"
-  quantity: number        // negative = sell
+  dateTime: string // raw string from CSV e.g. "2026-01-05, 09:48:12"
+  quantity: number // negative = sell
   price: number
   proceeds: number
   commission: number
@@ -40,13 +40,13 @@ export interface StatementData {
   // NAV
   currentNav: number
   priorNav: number
-  twr: number             // time-weighted return as decimal e.g. 0.09988
-  cashBalance: number     // Cash row in Net Asset Value section
+  twr: number // time-weighted return as decimal e.g. 0.09988
+  cashBalance: number // Cash row in Net Asset Value section
 
   // Change in NAV — needed to compute correct return net of deposits/withdrawals
-  startingNav: number           // "Starting Value"
-  depositsWithdrawals: number   // "Deposits & Withdrawals" (net, can be negative)
-  endingNav: number             // "Ending Value" (should equal currentNav)
+  startingNav: number // "Starting Value"
+  depositsWithdrawals: number // "Deposits & Withdrawals" (net, can be negative)
+  endingNav: number // "Ending Value" (should equal currentNav)
 
   // Per-ticker
   trades: Trade[]
@@ -56,14 +56,14 @@ export interface StatementData {
 
 export interface TickerSummary {
   symbol: string
-  quantity: number        // 0 = fully closed position
-  costPrice: number       // avg cost per share (0 if fully closed)
-  currentPrice: number    // 0 if fully closed
-  marketValue: number     // 0 if fully closed
+  quantity: number // 0 = fully closed position
+  costPrice: number // avg cost per share (0 if fully closed)
+  currentPrice: number // 0 if fully closed
+  marketValue: number // 0 if fully closed
   realizedPL: number
   unrealizedPL: number
   totalPL: number
-  returnPct: number       // totalPL / costBasis * 100
+  returnPct: number // totalPL / costBasis * 100
   costBasis: number
 }
 
@@ -81,9 +81,9 @@ export interface MergedStatementData {
   depositsWithdrawals: number
   endingNav: number
 
-  trades: Trade[]                                    // deduplicated, all files
-  openPositions: OpenPosition[]                      // from latest file only
-  realizedUnrealized: RealizedUnrealizedSummary[]    // recomputed from merged trades
+  trades: Trade[] // deduplicated, all files
+  openPositions: OpenPosition[] // from latest file only
+  realizedUnrealized: RealizedUnrealizedSummary[] // recomputed from merged trades
 
   hasOverlap: boolean
   fileCount: number

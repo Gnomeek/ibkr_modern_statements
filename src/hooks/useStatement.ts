@@ -1,6 +1,6 @@
 // src/hooks/useStatement.ts
 import { useContext } from 'react'
-import { StatementContext } from '../context/StatementContext'
+import { StatementContext } from '@/context/StatementContext'
 
 export function useStatement() {
   const ctx = useContext(StatementContext)

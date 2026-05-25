@@ -1,5 +1,5 @@
 // src/components/ui/PnlCell.tsx
-import { useStatement } from '../../hooks/useStatement'
+import { useStatement } from '@/hooks/useStatement'
 
 interface Props {
   value: number
@@ -18,6 +18,7 @@ export default function PnlCell({ value, format = 'currency', className = '' }: 
   const { masked } = useStatement()
   const color = value >= 0 ? 'text-green-400' : 'text-red-400'
   // Percentages are never masked — return rates reveal no absolute amounts
-  const display = masked && format === 'currency' ? (value >= 0 ? '+***' : '-***') : fmt(value, format)
+  const display =
+    masked && format === 'currency' ? (value >= 0 ? '+***' : '-***') : fmt(value, format)
   return <span className={`font-mono ${color} ${className}`}>{display}</span>
 }

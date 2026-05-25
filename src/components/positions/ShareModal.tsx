@@ -1,10 +1,10 @@
 // src/components/positions/ShareModal.tsx
 import { useRef, useState } from 'react'
-import type { TickerSummary } from '../../types/statement'
-import { useStatement } from '../../hooks/useStatement'
-import { createT } from '../../i18n'
+import type { TickerSummary } from '@/types/statement'
+import { useStatement } from '@/hooks/useStatement'
+import { createT } from '@/i18n'
 import ShareCard from './ShareCard'
-import { exportCardAsPng } from '../../lib/shareCard'
+import { exportCardAsPng } from '@/lib/shareCard'
 
 interface Props {
   ticker: TickerSummary
@@ -25,7 +25,10 @@ export default function ShareModal({ ticker, onClose }: Props) {
 
   async function download() {
     if (!captureRef.current) return
-    await exportCardAsPng(captureRef.current, `${ticker.symbol}-${variant}-${cardDark ? 'dark' : 'light'}.png`)
+    await exportCardAsPng(
+      captureRef.current,
+      `${ticker.symbol}-${variant}-${cardDark ? 'dark' : 'light'}.png`
+    )
   }
 
   const cardProps = { ticker, variant, dark: cardDark, lang, period }
@@ -37,7 +40,7 @@ export default function ShareModal({ ticker, onClose }: Props) {
     >
       <div
         className={`rounded-2xl p-6 w-full max-w-md ${darkMode ? 'bg-gray-900' : 'bg-white'}`}
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Modal header */}
         <div className="flex items-center justify-between mb-4">
@@ -54,7 +57,7 @@ export default function ShareModal({ ticker, onClose }: Props) {
 
         {/* Variant + theme toggles */}
         <div className="flex gap-2 mb-4">
-          {(['rate', 'amount'] as const).map(v => (
+          {(['rate', 'amount'] as const).map((v) => (
             <button
               key={v}
               onClick={() => setVariant(v)}
@@ -68,7 +71,7 @@ export default function ShareModal({ ticker, onClose }: Props) {
             </button>
           ))}
           <button
-            onClick={() => setCardDark(v => !v)}
+            onClick={() => setCardDark((v) => !v)}
             className="px-3 py-2 text-sm rounded-lg bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors"
           >
             {cardDark ? '☀' : '☾'}

@@ -66,6 +66,7 @@ ibkr_modern_statements/
 ## Task 1: Project Scaffold
 
 **Files:**
+
 - Create: `package.json`
 - Create: `vite.config.ts`
 - Create: `tsconfig.json`
@@ -120,7 +121,7 @@ import '@testing-library/jest-dom'
 - [ ] **Step 5: Create src/index.css with Tailwind import**
 
 ```css
-@import "tailwindcss";
+@import 'tailwindcss';
 ```
 
 - [ ] **Step 6: Replace src/main.tsx**
@@ -162,6 +163,7 @@ export default function App() {
 - [ ] **Step 8: Create stub pages so the app compiles**
 
 `src/pages/UploadPage.tsx`:
+
 ```tsx
 export default function UploadPage() {
   return <div className="p-8 text-white bg-gray-900 min-h-screen">Upload</div>
@@ -169,6 +171,7 @@ export default function UploadPage() {
 ```
 
 `src/pages/DashboardPage.tsx`:
+
 ```tsx
 export default function DashboardPage() {
   return <div className="p-8 text-white bg-gray-900 min-h-screen">Dashboard</div>
@@ -195,6 +198,7 @@ git commit -m "feat: scaffold Vite + React + Tailwind + Base UI project"
 ## Task 2: TypeScript Types
 
 **Files:**
+
 - Create: `src/types/statement.ts`
 
 - [ ] **Step 1: Create the types file**
@@ -204,8 +208,8 @@ git commit -m "feat: scaffold Vite + React + Tailwind + Base UI project"
 
 export interface Trade {
   symbol: string
-  dateTime: string        // raw string from CSV e.g. "2026-01-05, 09:48:12"
-  quantity: number        // negative = sell
+  dateTime: string // raw string from CSV e.g. "2026-01-05, 09:48:12"
+  quantity: number // negative = sell
   price: number
   proceeds: number
   commission: number
@@ -242,7 +246,7 @@ export interface StatementData {
   // NAV
   currentNav: number
   priorNav: number
-  twr: number             // time-weighted return as decimal e.g. 0.09988
+  twr: number // time-weighted return as decimal e.g. 0.09988
 
   // Per-ticker
   trades: Trade[]
@@ -252,14 +256,14 @@ export interface StatementData {
 
 export interface TickerSummary {
   symbol: string
-  quantity: number        // 0 = fully closed position
-  costPrice: number       // avg cost per share (0 if fully closed)
-  currentPrice: number    // 0 if fully closed
-  marketValue: number     // 0 if fully closed
+  quantity: number // 0 = fully closed position
+  costPrice: number // avg cost per share (0 if fully closed)
+  currentPrice: number // 0 if fully closed
+  marketValue: number // 0 if fully closed
   realizedPL: number
   unrealizedPL: number
   totalPL: number
-  returnPct: number       // totalPL / costBasis * 100
+  returnPct: number // totalPL / costBasis * 100
   costBasis: number
 }
 
@@ -273,9 +277,9 @@ export interface MergedStatementData {
   currentNav: number
   twr: number
 
-  trades: Trade[]                                    // deduplicated, all files
-  openPositions: OpenPosition[]                      // from latest file only
-  realizedUnrealized: RealizedUnrealizedSummary[]    // recomputed from merged trades
+  trades: Trade[] // deduplicated, all files
+  openPositions: OpenPosition[] // from latest file only
+  realizedUnrealized: RealizedUnrealizedSummary[] // recomputed from merged trades
 
   hasOverlap: boolean
   fileCount: number
@@ -294,6 +298,7 @@ git commit -m "feat: add TypeScript types for statement data"
 ## Task 3: CSV Parser
 
 **Files:**
+
 - Create: `src/lib/parser.ts`
 - Create: `tests/lib/parser.test.ts`
 
@@ -305,10 +310,7 @@ import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'fs'
 import { parseStatement } from '../../src/lib/parser'
 
-const csv = readFileSync(
-  'example_ibkr_statements.csv',
-  'utf-8'
-)
+const csv = readFileSync('example_ibkr_statements.csv', 'utf-8')
 
 describe('parseStatement', () => {
   it('parses account metadata', () => {
@@ -322,7 +324,7 @@ describe('parseStatement', () => {
     const result = parseStatement(csv)
     expect(result.periodStart.getFullYear()).toBe(2026)
     expect(result.periodStart.getMonth()).toBe(0) // January = 0
-    expect(result.periodEnd.getMonth()).toBe(4)   // May = 4
+    expect(result.periodEnd.getMonth()).toBe(4) // May = 4
   })
 
   it('parses TWR', () => {
@@ -337,7 +339,7 @@ describe('parseStatement', () => {
 
   it('parses open positions', () => {
     const result = parseStatement(csv)
-    const nvda = result.openPositions.find(p => p.symbol === 'NVDA')
+    const nvda = result.openPositions.find((p) => p.symbol === 'NVDA')
     expect(nvda).toBeDefined()
     expect(nvda!.quantity).toBe(110)
     expect(nvda!.closePrice).toBeCloseTo(215.33, 2)
@@ -345,16 +347,14 @@ describe('parseStatement', () => {
 
   it('parses trades', () => {
     const result = parseStatement(csv)
-    const aaplTrade = result.trades.find(
-      t => t.symbol === 'AAPL' && t.quantity === 6
-    )
+    const aaplTrade = result.trades.find((t) => t.symbol === 'AAPL' && t.quantity === 6)
     expect(aaplTrade).toBeDefined()
     expect(aaplTrade!.price).toBeCloseTo(269.745, 2)
   })
 
   it('parses realized/unrealized summary', () => {
     const result = parseStatement(csv)
-    const allw = result.realizedUnrealized.find(r => r.symbol === 'ALLW')
+    const allw = result.realizedUnrealized.find((r) => r.symbol === 'ALLW')
     expect(allw).toBeDefined()
     expect(allw!.realizedTotal).toBeCloseTo(114.31, 1)
   })
@@ -374,7 +374,12 @@ Expected: FAIL — `parseStatement` not found.
 ```ts
 // src/lib/parser.ts
 import Papa from 'papaparse'
-import type { StatementData, Trade, OpenPosition, RealizedUnrealizedSummary } from '../types/statement'
+import type {
+  StatementData,
+  Trade,
+  OpenPosition,
+  RealizedUnrealizedSummary,
+} from '../types/statement'
 
 type Row = string[]
 
@@ -545,6 +550,7 @@ git commit -m "feat: implement CSV parser with full section extraction"
 ## Task 4: Multi-File Merger
 
 **Files:**
+
 - Create: `src/lib/merger.ts`
 - Create: `tests/lib/merger.test.ts`
 
@@ -595,29 +601,53 @@ describe('mergeStatements', () => {
   })
 
   it('deduplicates trades with identical key across files', () => {
-    const s1 = makeStatement({ periodStart: new Date('2026-01-01'), periodEnd: new Date('2026-06-30') })
-    const s2 = makeStatement({ periodStart: new Date('2026-04-01'), periodEnd: new Date('2026-12-31') })
+    const s1 = makeStatement({
+      periodStart: new Date('2026-01-01'),
+      periodEnd: new Date('2026-06-30'),
+    })
+    const s2 = makeStatement({
+      periodStart: new Date('2026-04-01'),
+      periodEnd: new Date('2026-12-31'),
+    })
     const result = mergeStatements([s1, s2])
     expect(result.trades).toHaveLength(1) // duplicate removed
   })
 
   it('detects overlap between two files', () => {
-    const s1 = makeStatement({ periodStart: new Date('2026-01-01'), periodEnd: new Date('2026-06-30') })
-    const s2 = makeStatement({ periodStart: new Date('2026-04-01'), periodEnd: new Date('2026-12-31') })
+    const s1 = makeStatement({
+      periodStart: new Date('2026-01-01'),
+      periodEnd: new Date('2026-06-30'),
+    })
+    const s2 = makeStatement({
+      periodStart: new Date('2026-04-01'),
+      periodEnd: new Date('2026-12-31'),
+    })
     const result = mergeStatements([s1, s2])
     expect(result.hasOverlap).toBe(true)
   })
 
   it('no overlap when periods are adjacent', () => {
-    const s1 = makeStatement({ periodStart: new Date('2026-01-01'), periodEnd: new Date('2026-06-30') })
-    const s2 = makeStatement({ periodStart: new Date('2026-07-01'), periodEnd: new Date('2026-12-31') })
+    const s1 = makeStatement({
+      periodStart: new Date('2026-01-01'),
+      periodEnd: new Date('2026-06-30'),
+    })
+    const s2 = makeStatement({
+      periodStart: new Date('2026-07-01'),
+      periodEnd: new Date('2026-12-31'),
+    })
     const result = mergeStatements([s1, s2])
     expect(result.hasOverlap).toBe(false)
   })
 
   it('merges period to min start and max end', () => {
-    const s1 = makeStatement({ periodStart: new Date('2025-01-01'), periodEnd: new Date('2025-12-31') })
-    const s2 = makeStatement({ periodStart: new Date('2026-01-01'), periodEnd: new Date('2026-06-30') })
+    const s1 = makeStatement({
+      periodStart: new Date('2025-01-01'),
+      periodEnd: new Date('2025-12-31'),
+    })
+    const s2 = makeStatement({
+      periodStart: new Date('2026-01-01'),
+      periodEnd: new Date('2026-06-30'),
+    })
     const result = mergeStatements([s1, s2])
     expect(result.periodStart.getFullYear()).toBe(2025)
     expect(result.periodEnd.getMonth()).toBe(5) // June
@@ -659,14 +689,12 @@ import type { StatementData, MergedStatementData, Trade } from '../types/stateme
 export function mergeStatements(statements: StatementData[]): MergedStatementData {
   if (statements.length === 0) throw new Error('No statements provided')
 
-  const sorted = [...statements].sort(
-    (a, b) => a.periodStart.getTime() - b.periodStart.getTime()
-  )
+  const sorted = [...statements].sort((a, b) => a.periodStart.getTime() - b.periodStart.getTime())
 
   const hasOverlap = detectOverlap(sorted)
-  const latest = sorted.reduce((a, b) => a.periodEnd > b.periodEnd ? a : b)
+  const latest = sorted.reduce((a, b) => (a.periodEnd > b.periodEnd ? a : b))
 
-  const allTrades = deduplicateTrades(sorted.flatMap(s => s.trades))
+  const allTrades = deduplicateTrades(sorted.flatMap((s) => s.trades))
 
   return {
     periodStart: sorted[0].periodStart,
@@ -729,6 +757,7 @@ git commit -m "feat: implement multi-file merger with deduplication"
 ## Task 5: Calculations
 
 **Files:**
+
 - Create: `src/lib/calculations.ts`
 - Create: `tests/lib/calculations.test.ts`
 
@@ -752,15 +781,26 @@ const makeMerged = (): MergedStatementData => ({
   fileCount: 1,
   trades: [
     {
-      symbol: 'ALLW', dateTime: '2026-01-06, 09:34:58', quantity: -40,
-      price: 27.995, proceeds: 1119.8, commission: -0.366,
-      basis: -1005.12, realizedPL: 114.31, mtmPL: -3.8, code: 'C',
+      symbol: 'ALLW',
+      dateTime: '2026-01-06, 09:34:58',
+      quantity: -40,
+      price: 27.995,
+      proceeds: 1119.8,
+      commission: -0.366,
+      basis: -1005.12,
+      realizedPL: 114.31,
+      mtmPL: -3.8,
+      code: 'C',
     },
   ],
   openPositions: [
     {
-      symbol: 'NVDA', quantity: 110, costPrice: 186.5,
-      costBasis: 20515, closePrice: 215.33, marketValue: 23686.3,
+      symbol: 'NVDA',
+      quantity: 110,
+      costPrice: 186.5,
+      costBasis: 20515,
+      closePrice: 215.33,
+      marketValue: 23686.3,
       unrealizedPL: 3172.29,
     },
   ],
@@ -773,7 +813,7 @@ const makeMerged = (): MergedStatementData => ({
 describe('buildTickerSummaries', () => {
   it('computes NVDA unrealized-only position', () => {
     const summaries = buildTickerSummaries(makeMerged())
-    const nvda = summaries.find(s => s.symbol === 'NVDA')
+    const nvda = summaries.find((s) => s.symbol === 'NVDA')
     expect(nvda).toBeDefined()
     expect(nvda!.unrealizedPL).toBeCloseTo(3172.29, 1)
     expect(nvda!.totalPL).toBeCloseTo(3172.29, 1)
@@ -782,7 +822,7 @@ describe('buildTickerSummaries', () => {
 
   it('computes ALLW fully-closed position', () => {
     const summaries = buildTickerSummaries(makeMerged())
-    const allw = summaries.find(s => s.symbol === 'ALLW')
+    const allw = summaries.find((s) => s.symbol === 'ALLW')
     expect(allw).toBeDefined()
     expect(allw!.realizedPL).toBeCloseTo(114.31, 1)
     expect(allw!.quantity).toBe(0)
@@ -829,13 +869,13 @@ export interface PortfolioMetrics {
 
 export function buildTickerSummaries(data: MergedStatementData): TickerSummary[] {
   const symbols = new Set([
-    ...data.realizedUnrealized.map(r => r.symbol),
-    ...data.openPositions.map(p => p.symbol),
+    ...data.realizedUnrealized.map((r) => r.symbol),
+    ...data.openPositions.map((p) => p.symbol),
   ])
 
-  return Array.from(symbols).map(symbol => {
-    const ru = data.realizedUnrealized.find(r => r.symbol === symbol)
-    const pos = data.openPositions.find(p => p.symbol === symbol)
+  return Array.from(symbols).map((symbol) => {
+    const ru = data.realizedUnrealized.find((r) => r.symbol === symbol)
+    const pos = data.openPositions.find((p) => p.symbol === symbol)
 
     const realizedPL = ru?.realizedTotal ?? 0
     const unrealizedPL = ru?.unrealizedTotal ?? pos?.unrealizedPL ?? 0
@@ -849,14 +889,25 @@ export function buildTickerSummaries(data: MergedStatementData): TickerSummary[]
 
     const returnPct = costBasis !== 0 ? (totalPL / costBasis) * 100 : 0
 
-    return { symbol, quantity, costPrice, currentPrice, marketValue, realizedPL, unrealizedPL, totalPL, returnPct, costBasis }
+    return {
+      symbol,
+      quantity,
+      costPrice,
+      currentPrice,
+      marketValue,
+      realizedPL,
+      unrealizedPL,
+      totalPL,
+      returnPct,
+      costBasis,
+    }
   })
 }
 
 function estimateCostBasisFromTrades(data: MergedStatementData, symbol: string): number {
   // For closed positions, sum absolute basis of buy trades
   return data.trades
-    .filter(t => t.symbol === symbol && t.quantity > 0)
+    .filter((t) => t.symbol === symbol && t.quantity > 0)
     .reduce((sum, t) => sum + Math.abs(t.basis), 0)
 }
 
@@ -898,6 +949,7 @@ git commit -m "feat: implement portfolio calculations and ticker summaries"
 ## Task 6: i18n Helper + Statement Context
 
 **Files:**
+
 - Create: `src/i18n.ts`
 - Create: `src/context/StatementContext.tsx`
 - Create: `src/hooks/useStatement.ts`
@@ -956,7 +1008,10 @@ const dict = {
   generatedBy: { en: 'Generated by IBKR Modern Statements', zh: '由 IBKR Modern Statements 生成' },
 
   // Upload page
-  dragDrop: { en: 'Drag & drop IBKR CSV files here, or click to browse', zh: '拖拽 IBKR CSV 文件到此处，或点击选择' },
+  dragDrop: {
+    en: 'Drag & drop IBKR CSV files here, or click to browse',
+    zh: '拖拽 IBKR CSV 文件到此处，或点击选择',
+  },
   overlapDetected: { en: 'Overlap detected — deduplicating', zh: '检测到日期重叠 — 自动去重' },
   howToExport: { en: 'How to export from IBKR', zh: '如何从 IBKR 导出报表' },
   period: { en: 'Period', zh: '期间' },
@@ -1006,15 +1061,14 @@ export function StatementProvider({ children }: { children: ReactNode }) {
   const [lang, setLang] = useState<Lang>('en')
   const [darkMode, setDarkMode] = useState(true)
 
-  const merged: MergedStatementData | null = files.length > 0
-    ? mergeStatements(files.map(f => f.statement))
-    : null
+  const merged: MergedStatementData | null =
+    files.length > 0 ? mergeStatements(files.map((f) => f.statement)) : null
 
   const addFiles = useCallback((inputs: { name: string; text: string }[]) => {
-    setFiles(prev => {
+    setFiles((prev) => {
       const next = [...prev]
       for (const { name, text } of inputs) {
-        if (next.find(f => f.name === name)) continue
+        if (next.find((f) => f.name === name)) continue
         try {
           const statement = parseStatement(text)
           next.push({ name, statement })
@@ -1027,11 +1081,13 @@ export function StatementProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const removeFile = useCallback((name: string) => {
-    setFiles(prev => prev.filter(f => f.name !== name))
+    setFiles((prev) => prev.filter((f) => f.name !== name))
   }, [])
 
   return (
-    <StatementContext.Provider value={{ files, merged, lang, darkMode, addFiles, removeFile, setLang, setDarkMode }}>
+    <StatementContext.Provider
+      value={{ files, merged, lang, darkMode, addFiles, removeFile, setLang, setDarkMode }}
+    >
       {children}
     </StatementContext.Provider>
   )
@@ -1094,6 +1150,7 @@ git commit -m "feat: add i18n helper, statement context, and useStatement hook"
 ## Task 7: Upload Page
 
 **Files:**
+
 - Create: `src/components/upload/UploadZone.tsx`
 - Modify: `src/pages/UploadPage.tsx`
 
@@ -1114,7 +1171,7 @@ export default function UploadZone() {
 
   async function handleFiles(fileList: FileList) {
     const inputs = await Promise.all(
-      Array.from(fileList).map(async f => ({ name: f.name, text: await f.text() }))
+      Array.from(fileList).map(async (f) => ({ name: f.name, text: await f.text() }))
     )
     addFiles(inputs)
   }
@@ -1132,14 +1189,19 @@ export default function UploadZone() {
   return (
     <div
       onClick={() => inputRef.current?.click()}
-      onDragOver={e => { e.preventDefault(); setDragging(true) }}
+      onDragOver={(e) => {
+        e.preventDefault()
+        setDragging(true)
+      }}
       onDragLeave={() => setDragging(false)}
       onDrop={onDrop}
       className={`
         cursor-pointer rounded-xl border-2 border-dashed p-12 text-center transition-colors
-        ${dragging
-          ? 'border-green-400 bg-green-400/10'
-          : 'border-gray-600 hover:border-gray-400 bg-gray-800/50'}
+        ${
+          dragging
+            ? 'border-green-400 bg-green-400/10'
+            : 'border-gray-600 hover:border-gray-400 bg-gray-800/50'
+        }
       `}
     >
       <div className="text-4xl mb-4">📁</div>
@@ -1177,12 +1239,11 @@ export default function UploadPage() {
   const navigate = useNavigate()
   const [showHint, setShowHint] = useState(false)
 
-  const validFiles = files.filter(f => !f.error)
+  const validFiles = files.filter((f) => !f.error)
 
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-xl space-y-6">
-
         {/* Header */}
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold tracking-tight">IBKR Modern Statements</h1>
@@ -1200,16 +1261,20 @@ export default function UploadPage() {
         {/* File list */}
         {files.length > 0 && (
           <ul className="space-y-2">
-            {files.map(f => (
-              <li key={f.name} className="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-3">
+            {files.map((f) => (
+              <li
+                key={f.name}
+                className="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-3"
+              >
                 <div>
                   <p className="text-sm font-medium">{f.name}</p>
-                  {f.error
-                    ? <p className="text-xs text-red-400 mt-0.5">{f.error}</p>
-                    : <p className="text-xs text-gray-400 mt-0.5">
-                        {formatDate(f.statement.periodStart)} ~ {formatDate(f.statement.periodEnd)}
-                      </p>
-                  }
+                  {f.error ? (
+                    <p className="text-xs text-red-400 mt-0.5">{f.error}</p>
+                  ) : (
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {formatDate(f.statement.periodStart)} ~ {formatDate(f.statement.periodEnd)}
+                    </p>
+                  )}
                 </div>
                 <button
                   onClick={() => removeFile(f.name)}
@@ -1242,22 +1307,31 @@ export default function UploadPage() {
         {/* How to export hint */}
         <div>
           <button
-            onClick={() => setShowHint(v => !v)}
+            onClick={() => setShowHint((v) => !v)}
             className="text-sm text-gray-500 hover:text-gray-300 transition-colors"
           >
             {showHint ? '▾' : '▸'} {t('howToExport')}
           </button>
           {showHint && (
             <div className="mt-3 bg-gray-800 rounded-lg p-4 text-sm text-gray-300 space-y-2">
-              <p>1. Log in to IBKR → <strong>Reports</strong> → <strong>Statements</strong></p>
-              <p>2. Select <strong>Activity</strong> statement type</p>
-              <p>3. Choose date range (max 365 days) → <strong>CSV</strong> format</p>
+              <p>
+                1. Log in to IBKR → <strong>Reports</strong> → <strong>Statements</strong>
+              </p>
+              <p>
+                2. Select <strong>Activity</strong> statement type
+              </p>
+              <p>
+                3. Choose date range (max 365 days) → <strong>CSV</strong> format
+              </p>
               <p>4. Download and upload here. For longer history, export multiple CSVs.</p>
-              <img src="assets/how-to-get-ibkr-statements.jpeg" alt="IBKR export guide" className="rounded mt-2 w-full" />
+              <img
+                src="assets/how-to-get-ibkr-statements.jpeg"
+                alt="IBKR export guide"
+                className="rounded mt-2 w-full"
+              />
             </div>
           )}
         </div>
-
       </div>
     </div>
   )
@@ -1284,6 +1358,7 @@ git commit -m "feat: implement upload page with drag-drop, file list, and overla
 ## Task 8: Dashboard Shell + Top Bar
 
 **Files:**
+
 - Modify: `src/pages/DashboardPage.tsx`
 
 - [ ] **Step 1: Implement DashboardPage with Base UI Tabs**
@@ -1317,10 +1392,13 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-gray-950 text-white' : 'bg-gray-50 text-gray-900'}`}>
-
+    <div
+      className={`min-h-screen ${darkMode ? 'bg-gray-950 text-white' : 'bg-gray-50 text-gray-900'}`}
+    >
       {/* Top bar */}
-      <header className={`sticky top-0 z-10 border-b ${darkMode ? 'bg-gray-950 border-gray-800' : 'bg-white border-gray-200'} px-6 py-3`}>
+      <header
+        className={`sticky top-0 z-10 border-b ${darkMode ? 'bg-gray-950 border-gray-800' : 'bg-white border-gray-200'} px-6 py-3`}
+      >
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div>
             <span className="font-semibold">{merged.accountName}</span>
@@ -1364,9 +1442,11 @@ export default function DashboardPage() {
                 key={value}
                 value={value}
                 className={`px-4 py-2 text-sm font-medium rounded-t transition-colors cursor-pointer
-                  ${tab === value
-                    ? 'text-white border-b-2 border-green-400'
-                    : 'text-gray-500 hover:text-gray-300'}`}
+                  ${
+                    tab === value
+                      ? 'text-white border-b-2 border-green-400'
+                      : 'text-gray-500 hover:text-gray-300'
+                  }`}
               >
                 {label}
               </Tabs.Tab>
@@ -1396,28 +1476,43 @@ export default function DashboardPage() {
 - [ ] **Step 2: Create stub components so app compiles**
 
 `src/components/overview/SummaryCards.tsx`:
+
 ```tsx
-export default function SummaryCards() { return <div /> }
+export default function SummaryCards() {
+  return <div />
+}
 ```
 
 `src/components/overview/PortfolioPieChart.tsx`:
+
 ```tsx
-export default function PortfolioPieChart() { return <div /> }
+export default function PortfolioPieChart() {
+  return <div />
+}
 ```
 
 `src/components/overview/PeriodInfo.tsx`:
+
 ```tsx
-export default function PeriodInfo() { return <div /> }
+export default function PeriodInfo() {
+  return <div />
+}
 ```
 
 `src/components/positions/PositionsTable.tsx`:
+
 ```tsx
-export default function PositionsTable() { return <div /> }
+export default function PositionsTable() {
+  return <div />
+}
 ```
 
 `src/components/trades/TradesTable.tsx`:
+
 ```tsx
-export default function TradesTable() { return <div /> }
+export default function TradesTable() {
+  return <div />
+}
 ```
 
 - [ ] **Step 3: Verify dashboard renders**
@@ -1436,6 +1531,7 @@ git commit -m "feat: implement dashboard shell with Base UI tabs and top bar"
 ## Task 9: Overview Tab Components
 
 **Files:**
+
 - Modify: `src/components/overview/SummaryCards.tsx`
 - Modify: `src/components/overview/PortfolioPieChart.tsx`
 - Modify: `src/components/overview/PeriodInfo.tsx`
@@ -1473,9 +1569,19 @@ import { createT } from '../../i18n'
 import { buildPortfolioMetrics } from '../../lib/calculations'
 import PnlCell from '../ui/PnlCell'
 
-function MetricCard({ label, children, dark }: { label: string; children: React.ReactNode; dark: boolean }) {
+function MetricCard({
+  label,
+  children,
+  dark,
+}: {
+  label: string
+  children: React.ReactNode
+  dark: boolean
+}) {
   return (
-    <div className={`rounded-xl p-5 ${dark ? 'bg-gray-800' : 'bg-white border border-gray-200 shadow-sm'}`}>
+    <div
+      className={`rounded-xl p-5 ${dark ? 'bg-gray-800' : 'bg-white border border-gray-200 shadow-sm'}`}
+    >
       <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">{label}</p>
       <div className="text-2xl font-bold">{children}</div>
     </div>
@@ -1492,7 +1598,13 @@ export default function SummaryCards() {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <MetricCard label={t('totalNav')} dark={darkMode}>
-        <span className="font-mono">${m.currentNav.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+        <span className="font-mono">
+          $
+          {m.currentNav.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
+        </span>
       </MetricCard>
       <MetricCard label={t('totalPL')} dark={darkMode}>
         <PnlCell value={m.totalPL} />
@@ -1515,34 +1627,63 @@ export default function SummaryCards() {
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { useStatement } from '../../hooks/useStatement'
 
-const COLORS = ['#00ff88', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316', '#ec4899']
+const COLORS = [
+  '#00ff88',
+  '#3b82f6',
+  '#f59e0b',
+  '#ef4444',
+  '#8b5cf6',
+  '#06b6d4',
+  '#f97316',
+  '#ec4899',
+]
 
 export default function PortfolioPieChart() {
   const { merged, darkMode } = useStatement()
   if (!merged) return null
 
   const data = merged.openPositions
-    .filter(p => p.marketValue > 0)
-    .map(p => ({ name: p.symbol, value: parseFloat(p.marketValue.toFixed(2)) }))
+    .filter((p) => p.marketValue > 0)
+    .map((p) => ({ name: p.symbol, value: parseFloat(p.marketValue.toFixed(2)) }))
     .sort((a, b) => b.value - a.value)
 
   if (data.length === 0) return null
 
   return (
-    <div className={`rounded-xl p-6 ${darkMode ? 'bg-gray-800' : 'bg-white border border-gray-200 shadow-sm'}`}>
-      <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">Portfolio Allocation</h3>
+    <div
+      className={`rounded-xl p-6 ${darkMode ? 'bg-gray-800' : 'bg-white border border-gray-200 shadow-sm'}`}
+    >
+      <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">
+        Portfolio Allocation
+      </h3>
       <ResponsiveContainer width="100%" height={280}>
         <PieChart>
-          <Pie data={data} cx="50%" cy="50%" innerRadius={70} outerRadius={110} paddingAngle={2} dataKey="value">
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            innerRadius={70}
+            outerRadius={110}
+            paddingAngle={2}
+            dataKey="value"
+          >
             {data.map((_, i) => (
               <Cell key={i} fill={COLORS[i % COLORS.length]} />
             ))}
           </Pie>
           <Tooltip
             formatter={(v: number) => [`$${v.toLocaleString()}`, '']}
-            contentStyle={{ background: darkMode ? '#1f2937' : '#fff', border: 'none', borderRadius: 8 }}
+            contentStyle={{
+              background: darkMode ? '#1f2937' : '#fff',
+              border: 'none',
+              borderRadius: 8,
+            }}
           />
-          <Legend formatter={name => <span className={darkMode ? 'text-gray-300' : 'text-gray-700'}>{name}</span>} />
+          <Legend
+            formatter={(name) => (
+              <span className={darkMode ? 'text-gray-300' : 'text-gray-700'}>{name}</span>
+            )}
+          />
         </PieChart>
       </ResponsiveContainer>
     </div>
@@ -1567,10 +1708,15 @@ export default function PeriodInfo() {
   if (!merged) return null
 
   return (
-    <div className={`rounded-xl p-5 flex flex-wrap gap-6 text-sm ${darkMode ? 'bg-gray-800' : 'bg-white border border-gray-200 shadow-sm'}`}>
+    <div
+      className={`rounded-xl p-5 flex flex-wrap gap-6 text-sm ${darkMode ? 'bg-gray-800' : 'bg-white border border-gray-200 shadow-sm'}`}
+    >
       <div>
         <span className="text-gray-500 mr-2">{t('period')}:</span>
-        <span>{merged.periodStart.toISOString().slice(0, 10)} → {merged.periodEnd.toISOString().slice(0, 10)}</span>
+        <span>
+          {merged.periodStart.toISOString().slice(0, 10)} →{' '}
+          {merged.periodEnd.toISOString().slice(0, 10)}
+        </span>
       </div>
       <div>
         <span className="text-gray-500 mr-2">{t('account')}:</span>
@@ -1581,9 +1727,7 @@ export default function PeriodInfo() {
         <span>{merged.baseCurrency}</span>
       </div>
       {merged.fileCount > 1 && (
-        <div className="text-yellow-400">
-          {merged.fileCount} files merged
-        </div>
+        <div className="text-yellow-400">{merged.fileCount} files merged</div>
       )}
     </div>
   )
@@ -1610,6 +1754,7 @@ git commit -m "feat: implement overview tab — summary cards, pie chart, period
 ## Task 10: Positions Table
 
 **Files:**
+
 - Modify: `src/components/positions/PositionsTable.tsx`
 
 - [ ] **Step 1: Implement PositionsTable.tsx**
@@ -1624,7 +1769,10 @@ import type { TickerSummary } from '../../types/statement'
 import PnlCell from '../ui/PnlCell'
 import ShareModal from './ShareModal'
 
-type SortKey = keyof Pick<TickerSummary, 'symbol' | 'marketValue' | 'realizedPL' | 'unrealizedPL' | 'totalPL' | 'returnPct'>
+type SortKey = keyof Pick<
+  TickerSummary,
+  'symbol' | 'marketValue' | 'realizedPL' | 'unrealizedPL' | 'totalPL' | 'returnPct'
+>
 
 export default function PositionsTable() {
   const { merged, lang, darkMode } = useStatement()
@@ -1640,13 +1788,17 @@ export default function PositionsTable() {
   const sorted = [...summaries].sort((a, b) => {
     const av = a[sortKey]
     const bv = b[sortKey]
-    const cmp = typeof av === 'string' ? av.localeCompare(bv as string) : (av as number) - (bv as number)
+    const cmp =
+      typeof av === 'string' ? av.localeCompare(bv as string) : (av as number) - (bv as number)
     return sortAsc ? cmp : -cmp
   })
 
   function onSort(key: SortKey) {
-    if (sortKey === key) setSortAsc(v => !v)
-    else { setSortKey(key); setSortAsc(false) }
+    if (sortKey === key) setSortAsc((v) => !v)
+    else {
+      setSortKey(key)
+      setSortAsc(false)
+    }
   }
 
   const th = (label: string, key: SortKey) => (
@@ -1659,38 +1811,69 @@ export default function PositionsTable() {
     </th>
   )
 
-  const shareTarget = shareSymbol ? summaries.find(s => s.symbol === shareSymbol) ?? null : null
+  const shareTarget = shareSymbol ? (summaries.find((s) => s.symbol === shareSymbol) ?? null) : null
 
   return (
     <>
-      <div className={`rounded-xl overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-white border border-gray-200 shadow-sm'}`}>
+      <div
+        className={`rounded-xl overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-white border border-gray-200 shadow-sm'}`}
+      >
         <table className="w-full text-sm">
           <thead className={darkMode ? 'border-b border-gray-700' : 'border-b border-gray-200'}>
             <tr>
               {th(t('ticker'), 'symbol')}
-              <th className="text-right px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{t('qty')}</th>
-              <th className="text-right px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{t('costPrice')}</th>
-              <th className="text-right px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{t('currentPrice')}</th>
-              <th className="text-right px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{t('marketValue')}</th>
+              <th className="text-right px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {t('qty')}
+              </th>
+              <th className="text-right px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {t('costPrice')}
+              </th>
+              <th className="text-right px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {t('currentPrice')}
+              </th>
+              <th className="text-right px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {t('marketValue')}
+              </th>
               {th(t('realizedPL'), 'realizedPL')}
               {th(t('unrealizedPL'), 'unrealizedPL')}
               {th('Total P/L', 'totalPL')}
               {th(t('returnPct'), 'returnPct')}
-              <th className="text-right px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{t('action')}</th>
+              <th className="text-right px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {t('action')}
+              </th>
             </tr>
           </thead>
           <tbody className={`divide-y ${darkMode ? 'divide-gray-700' : 'divide-gray-100'}`}>
-            {sorted.map(row => (
-              <tr key={row.symbol} className={`${darkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'} transition-colors`}>
+            {sorted.map((row) => (
+              <tr
+                key={row.symbol}
+                className={`${darkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'} transition-colors`}
+              >
                 <td className="px-3 py-3 font-mono font-semibold">{row.symbol}</td>
-                <td className="px-3 py-3 text-right font-mono text-gray-400">{row.quantity || '—'}</td>
-                <td className="px-3 py-3 text-right font-mono">{row.costPrice > 0 ? `$${row.costPrice.toFixed(2)}` : '—'}</td>
-                <td className="px-3 py-3 text-right font-mono">{row.currentPrice > 0 ? `$${row.currentPrice.toFixed(2)}` : '—'}</td>
-                <td className="px-3 py-3 text-right font-mono">{row.marketValue > 0 ? `$${row.marketValue.toLocaleString()}` : '—'}</td>
-                <td className="px-3 py-3 text-right"><PnlCell value={row.realizedPL} /></td>
-                <td className="px-3 py-3 text-right"><PnlCell value={row.unrealizedPL} /></td>
-                <td className="px-3 py-3 text-right"><PnlCell value={row.totalPL} /></td>
-                <td className="px-3 py-3 text-right"><PnlCell value={row.returnPct} format="percent" /></td>
+                <td className="px-3 py-3 text-right font-mono text-gray-400">
+                  {row.quantity || '—'}
+                </td>
+                <td className="px-3 py-3 text-right font-mono">
+                  {row.costPrice > 0 ? `$${row.costPrice.toFixed(2)}` : '—'}
+                </td>
+                <td className="px-3 py-3 text-right font-mono">
+                  {row.currentPrice > 0 ? `$${row.currentPrice.toFixed(2)}` : '—'}
+                </td>
+                <td className="px-3 py-3 text-right font-mono">
+                  {row.marketValue > 0 ? `$${row.marketValue.toLocaleString()}` : '—'}
+                </td>
+                <td className="px-3 py-3 text-right">
+                  <PnlCell value={row.realizedPL} />
+                </td>
+                <td className="px-3 py-3 text-right">
+                  <PnlCell value={row.unrealizedPL} />
+                </td>
+                <td className="px-3 py-3 text-right">
+                  <PnlCell value={row.totalPL} />
+                </td>
+                <td className="px-3 py-3 text-right">
+                  <PnlCell value={row.returnPct} format="percent" />
+                </td>
                 <td className="px-3 py-3 text-right">
                   <button
                     onClick={() => setShareSymbol(row.symbol)}
@@ -1705,9 +1888,7 @@ export default function PositionsTable() {
         </table>
       </div>
 
-      {shareTarget && (
-        <ShareModal ticker={shareTarget} onClose={() => setShareSymbol(null)} />
-      )}
+      {shareTarget && <ShareModal ticker={shareTarget} onClose={() => setShareSymbol(null)} />}
     </>
   )
 }
@@ -1718,11 +1899,17 @@ export default function PositionsTable() {
 ```tsx
 // src/components/positions/ShareModal.tsx
 import type { TickerSummary } from '../../types/statement'
-interface Props { ticker: TickerSummary; onClose: () => void }
+interface Props {
+  ticker: TickerSummary
+  onClose: () => void
+}
 export default function ShareModal({ onClose }: Props) {
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-gray-800 rounded-xl p-6" onClick={e => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+      onClick={onClose}
+    >
+      <div className="bg-gray-800 rounded-xl p-6" onClick={(e) => e.stopPropagation()}>
         <button onClick={onClose}>✕ Close</button>
       </div>
     </div>
@@ -1746,6 +1933,7 @@ git commit -m "feat: implement sortable positions table"
 ## Task 11: Trades Table
 
 **Files:**
+
 - Modify: `src/components/trades/TradesTable.tsx`
 - Create: `src/components/trades/TickerFilter.tsx`
 
@@ -1762,19 +1950,21 @@ interface Props {
 
 export default function TickerFilter({ symbols, selected, onChange, dark }: Props) {
   function toggle(sym: string) {
-    onChange(selected.includes(sym) ? selected.filter(s => s !== sym) : [...selected, sym])
+    onChange(selected.includes(sym) ? selected.filter((s) => s !== sym) : [...selected, sym])
   }
 
   return (
     <div className="flex flex-wrap gap-2 mb-4">
-      {symbols.map(sym => (
+      {symbols.map((sym) => (
         <button
           key={sym}
           onClick={() => toggle(sym)}
           className={`text-xs px-2 py-1 rounded font-mono transition-colors ${
             selected.includes(sym)
               ? 'bg-green-500 text-black'
-              : dark ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              : dark
+                ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
           }`}
         >
           {sym}
@@ -1806,10 +1996,11 @@ export default function TradesTable() {
 
   if (!merged) return null
 
-  const allSymbols = [...new Set(merged.trades.map(t => t.symbol))].sort()
-  const filtered = selectedSymbols.length === 0
-    ? merged.trades
-    : merged.trades.filter(tr => selectedSymbols.includes(tr.symbol))
+  const allSymbols = [...new Set(merged.trades.map((t) => t.symbol))].sort()
+  const filtered =
+    selectedSymbols.length === 0
+      ? merged.trades
+      : merged.trades.filter((tr) => selectedSymbols.includes(tr.symbol))
 
   return (
     <div>
@@ -1819,30 +2010,57 @@ export default function TradesTable() {
         onChange={setSelectedSymbols}
         dark={darkMode}
       />
-      <div className={`rounded-xl overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-white border border-gray-200 shadow-sm'}`}>
+      <div
+        className={`rounded-xl overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-white border border-gray-200 shadow-sm'}`}
+      >
         <table className="w-full text-sm">
           <thead className={darkMode ? 'border-b border-gray-700' : 'border-b border-gray-200'}>
             <tr>
-              {[t('date'), t('ticker'), t('side'), t('qty'), t('price'), t('proceeds'), t('commission'), t('realizedPL')].map(h => (
-                <th key={h} className="text-left px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">{h}</th>
+              {[
+                t('date'),
+                t('ticker'),
+                t('side'),
+                t('qty'),
+                t('price'),
+                t('proceeds'),
+                t('commission'),
+                t('realizedPL'),
+              ].map((h) => (
+                <th
+                  key={h}
+                  className="text-left px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  {h}
+                </th>
               ))}
             </tr>
           </thead>
           <tbody className={`divide-y ${darkMode ? 'divide-gray-700' : 'divide-gray-100'}`}>
             {filtered.map((tr, i) => (
-              <tr key={i} className={`${darkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'} transition-colors`}>
-                <td className="px-3 py-2 font-mono text-xs text-gray-400">{formatDateTime(tr.dateTime)}</td>
+              <tr
+                key={i}
+                className={`${darkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'} transition-colors`}
+              >
+                <td className="px-3 py-2 font-mono text-xs text-gray-400">
+                  {formatDateTime(tr.dateTime)}
+                </td>
                 <td className="px-3 py-2 font-mono font-semibold">{tr.symbol}</td>
                 <td className="px-3 py-2">
-                  <span className={`text-xs px-1.5 py-0.5 rounded ${tr.quantity > 0 ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                  <span
+                    className={`text-xs px-1.5 py-0.5 rounded ${tr.quantity > 0 ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}
+                  >
                     {tr.quantity > 0 ? t('buy') : t('sell')}
                   </span>
                 </td>
                 <td className="px-3 py-2 font-mono">{Math.abs(tr.quantity)}</td>
                 <td className="px-3 py-2 font-mono">${tr.price.toFixed(3)}</td>
                 <td className="px-3 py-2 font-mono">${Math.abs(tr.proceeds).toFixed(2)}</td>
-                <td className="px-3 py-2 font-mono text-gray-400">${Math.abs(tr.commission).toFixed(4)}</td>
-                <td className="px-3 py-2"><PnlCell value={tr.realizedPL} /></td>
+                <td className="px-3 py-2 font-mono text-gray-400">
+                  ${Math.abs(tr.commission).toFixed(4)}
+                </td>
+                <td className="px-3 py-2">
+                  <PnlCell value={tr.realizedPL} />
+                </td>
               </tr>
             ))}
           </tbody>
@@ -1869,6 +2087,7 @@ git commit -m "feat: implement trades table with ticker filter"
 ## Task 12: Share Cards + Modal
 
 **Files:**
+
 - Create: `src/components/positions/ShareCard.tsx`
 - Modify: `src/components/positions/ShareModal.tsx`
 - Create: `src/lib/shareCard.ts`
@@ -1898,83 +2117,127 @@ function fmtUsd(v: number) {
   return `${v >= 0 ? '+' : '-'}$${Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
-const ShareCard = forwardRef<HTMLDivElement, Props>(({ ticker, variant, dark, lang, period }, ref) => {
-  const t = createT(lang)
-  const positive = ticker.returnPct >= 0
+const ShareCard = forwardRef<HTMLDivElement, Props>(
+  ({ ticker, variant, dark, lang, period }, ref) => {
+    const t = createT(lang)
+    const positive = ticker.returnPct >= 0
 
-  const bg = dark ? '#0a0a0a' : '#ffffff'
-  const primary = positive
-    ? (dark ? '#00ff88' : '#16a34a')
-    : (dark ? '#ff4444' : '#dc2626')
-  const text = dark ? '#ffffff' : '#111827'
-  const muted = dark ? '#6b7280' : '#9ca3af'
-  const surface = dark ? '#1a1a1a' : '#f3f4f6'
+    const bg = dark ? '#0a0a0a' : '#ffffff'
+    const primary = positive ? (dark ? '#00ff88' : '#16a34a') : dark ? '#ff4444' : '#dc2626'
+    const text = dark ? '#ffffff' : '#111827'
+    const muted = dark ? '#6b7280' : '#9ca3af'
+    const surface = dark ? '#1a1a1a' : '#f3f4f6'
 
-  return (
-    <div
-      ref={ref}
-      style={{
-        width: 375,
-        height: 500,
-        background: bg,
-        color: text,
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-        padding: 32,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        borderRadius: 16,
-        border: dark ? '1px solid #1f2937' : '1px solid #e5e7eb',
-      }}
-    >
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <span style={{ fontSize: 14, fontWeight: 700, color: muted }}>IBKR</span>
-        <span style={{ fontSize: 12, color: muted }}>{period}</span>
-      </div>
-
-      {/* Ticker */}
-      <div>
-        <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: -1 }}>{ticker.symbol}</div>
-        <div style={{ fontSize: 13, color: muted, marginTop: 4 }}>
-          {variant === 'rate' ? t('totalReturnCard') : t('totalPLCard')}
+    return (
+      <div
+        ref={ref}
+        style={{
+          width: 375,
+          height: 500,
+          background: bg,
+          color: text,
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+          padding: 32,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          borderRadius: 16,
+          border: dark ? '1px solid #1f2937' : '1px solid #e5e7eb',
+        }}
+      >
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: muted }}>IBKR</span>
+          <span style={{ fontSize: 12, color: muted }}>{period}</span>
         </div>
-      </div>
 
-      {/* Big number */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: 52, fontWeight: 900, color: primary, lineHeight: 1 }}>
-          {variant === 'rate' ? fmtPct(ticker.returnPct) : fmtUsd(ticker.totalPL)}
-        </span>
-        <span style={{ fontSize: 40 }}>{variant === 'rate' ? '🚀' : '📈'}</span>
-      </div>
+        {/* Ticker */}
+        <div>
+          <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: -1 }}>{ticker.symbol}</div>
+          <div style={{ fontSize: 13, color: muted, marginTop: 4 }}>
+            {variant === 'rate' ? t('totalReturnCard') : t('totalPLCard')}
+          </div>
+        </div>
 
-      {/* Detail rows */}
-      <div style={{ background: surface, borderRadius: 12, padding: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {variant === 'rate' ? (
-          <>
-            <Row label={t('cost')} value={`$${ticker.costPrice.toFixed(2)}`} muted={muted} text={text} />
-            <Row label={t('currentPrice')} value={`$${ticker.currentPrice.toFixed(2)}`} muted={muted} text={text} />
-          </>
-        ) : (
-          <>
-            <Row label={t('realized')} value={fmtUsd(ticker.realizedPL)} muted={muted} text={primary} />
-            <Row label={t('unrealized')} value={fmtUsd(ticker.unrealizedPL)} muted={muted} text={primary} />
-            <Row label={t('mktValue')} value={`$${ticker.marketValue.toLocaleString()}`} muted={muted} text={text} />
-          </>
-        )}
-      </div>
+        {/* Big number */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: 52, fontWeight: 900, color: primary, lineHeight: 1 }}>
+            {variant === 'rate' ? fmtPct(ticker.returnPct) : fmtUsd(ticker.totalPL)}
+          </span>
+          <span style={{ fontSize: 40 }}>{variant === 'rate' ? '🚀' : '📈'}</span>
+        </div>
 
-      {/* Footer */}
-      <div style={{ fontSize: 11, color: muted, textAlign: 'center' }}>{t('generatedBy')}</div>
-    </div>
-  )
-})
+        {/* Detail rows */}
+        <div
+          style={{
+            background: surface,
+            borderRadius: 12,
+            padding: 20,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 10,
+          }}
+        >
+          {variant === 'rate' ? (
+            <>
+              <Row
+                label={t('cost')}
+                value={`$${ticker.costPrice.toFixed(2)}`}
+                muted={muted}
+                text={text}
+              />
+              <Row
+                label={t('currentPrice')}
+                value={`$${ticker.currentPrice.toFixed(2)}`}
+                muted={muted}
+                text={text}
+              />
+            </>
+          ) : (
+            <>
+              <Row
+                label={t('realized')}
+                value={fmtUsd(ticker.realizedPL)}
+                muted={muted}
+                text={primary}
+              />
+              <Row
+                label={t('unrealized')}
+                value={fmtUsd(ticker.unrealizedPL)}
+                muted={muted}
+                text={primary}
+              />
+              <Row
+                label={t('mktValue')}
+                value={`$${ticker.marketValue.toLocaleString()}`}
+                muted={muted}
+                text={text}
+              />
+            </>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div style={{ fontSize: 11, color: muted, textAlign: 'center' }}>{t('generatedBy')}</div>
+      </div>
+    )
+  }
+)
 
 ShareCard.displayName = 'ShareCard'
 export default ShareCard
 
-function Row({ label, value, muted, text }: { label: string; value: string; muted: string; text: string }) {
+function Row({
+  label,
+  value,
+  muted,
+  text,
+}: {
+  label: string
+  value: string
+  muted: string
+  text: string
+}) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14 }}>
       <span style={{ color: muted }}>{label}</span>
@@ -2033,36 +2296,51 @@ export default function ShareModal({ ticker, onClose }: Props) {
 
   async function download() {
     if (!cardRef.current) return
-    await exportCardAsPng(cardRef.current, `${ticker.symbol}-${variant}-${cardDark ? 'dark' : 'light'}.png`)
+    await exportCardAsPng(
+      cardRef.current,
+      `${ticker.symbol}-${variant}-${cardDark ? 'dark' : 'light'}.png`
+    )
   }
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+    >
       <div
         className={`rounded-2xl p-6 w-full max-w-md ${darkMode ? 'bg-gray-900' : 'bg-white'}`}
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Modal header */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold">{ticker.symbol} — {t('share')}</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-300 text-xl leading-none">✕</button>
+          <h2 className="font-semibold">
+            {ticker.symbol} — {t('share')}
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-300 text-xl leading-none"
+          >
+            ✕
+          </button>
         </div>
 
         {/* Variant + theme toggles */}
         <div className="flex gap-2 mb-4">
-          {(['rate', 'amount'] as const).map(v => (
+          {(['rate', 'amount'] as const).map((v) => (
             <button
               key={v}
               onClick={() => setVariant(v)}
               className={`flex-1 py-2 text-sm rounded-lg transition-colors ${
-                variant === v ? 'bg-green-500 text-black font-semibold' : 'bg-gray-700 text-gray-300'
+                variant === v
+                  ? 'bg-green-500 text-black font-semibold'
+                  : 'bg-gray-700 text-gray-300'
               }`}
             >
               {v === 'rate' ? t('totalReturnCard') : t('totalPLCard')}
             </button>
           ))}
           <button
-            onClick={() => setCardDark(v => !v)}
+            onClick={() => setCardDark((v) => !v)}
             className="px-3 py-2 text-sm rounded-lg bg-gray-700 text-gray-300 hover:bg-gray-600"
           >
             {cardDark ? '☀' : '☾'}
@@ -2112,6 +2390,7 @@ git commit -m "feat: implement share cards with rate/amount variants and PNG exp
 ## Task 13: Production Build + Final Polish
 
 **Files:**
+
 - Modify: `index.html`
 - Modify: `package.json` (build script check)
 
@@ -2123,8 +2402,15 @@ git commit -m "feat: implement share cards with rate/amount variants and PNG exp
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Analyze your IBKR portfolio statements in the browser. No data leaves your device." />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>" />
+    <meta
+      name="description"
+      content="Analyze your IBKR portfolio statements in the browser. No data leaves your device."
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>"
+    />
     <title>IBKR Modern Statements</title>
   </head>
   <body>
@@ -2170,6 +2456,7 @@ git commit -m "feat: production build verified — IBKR Modern Statements comple
 ## Self-Review Checklist
 
 **Spec coverage:**
+
 - ✅ Multi-file upload with overlap detection (Task 7 UploadPage + Task 4 merger)
 - ✅ Deduplicate by `Symbol|DateTime|Quantity|Price` (Task 4)
 - ✅ Latest file wins for NAV/TWR/OpenPositions (Task 4 merger)

@@ -15,16 +15,16 @@ IBKR limits exports to 365 days per file. Users can upload multiple CSVs coverin
 
 ## Tech Stack
 
-| Layer | Choice |
-|-------|--------|
-| Bundler | Vite |
-| UI Framework | React 18 + TypeScript |
-| Component Library | Base UI (MUI headless) |
-| Styling | Tailwind CSS |
-| CSV Parsing | PapaParse |
-| Share Image Generation | html2canvas |
-| Routing | React Router v6 (hash mode) |
-| Charts | Recharts |
+| Layer                  | Choice                      |
+| ---------------------- | --------------------------- |
+| Bundler                | Vite                        |
+| UI Framework           | React 18 + TypeScript       |
+| Component Library      | Base UI (MUI headless)      |
+| Styling                | Tailwind CSS                |
+| CSV Parsing            | PapaParse                   |
+| Share Image Generation | html2canvas                 |
+| Routing                | React Router v6 (hash mode) |
+| Charts                 | Recharts                    |
 
 ---
 
@@ -100,6 +100,7 @@ Top bar: account name, merged report period (earliest start → latest end acros
 ### Tab 1 — Overview
 
 **4 Summary Cards (top row):**
+
 - Current Total NAV (账户总市值)
 - Total P/L Amount (总盈亏金额 = Realized + Unrealized)
 - Total Return % (总收益率)
@@ -108,10 +109,12 @@ Top bar: account name, merged report period (earliest start → latest end acros
 All cards show green/red coloring based on positive/negative value.
 
 **Portfolio Pie Chart (middle):**
+
 - Donut chart of current holdings by market value
 - Legend lists each ticker with % weight
 
 **Period Info (bottom):**
+
 - Report period dates, account ID (masked), base currency
 
 ---
@@ -121,12 +124,13 @@ All cards show green/red coloring based on positive/negative value.
 Sortable table with columns:
 
 | Ticker | Qty | Cost Price | Current Price | Market Value | Realized P/L | Unrealized P/L | Total P/L | Return % | Action |
-|--------|-----|-----------|---------------|-------------|-------------|----------------|-----------|----------|--------|
+| ------ | --- | ---------- | ------------- | ------------ | ------------ | -------------- | --------- | -------- | ------ |
 
 - Realized P/L, Unrealized P/L, Total P/L, Return %: green if positive, red if negative
 - Action column: "分享 Share" button → opens Share Modal
 
 **Share Modal:**
+
 - Two tab cards: "收益率" (Rate Card) | "收益金额" (Amount Card)
 - Theme toggle inside modal: Dark | Light
 - Download button: exports current visible card as PNG (375×500px)
@@ -193,17 +197,17 @@ Card size: 375×500px logical, exported at 2× resolution (750×1000px PNG).
 
 The IBKR CSV has a multi-section format where each section is identified by the first column. Key sections to parse:
 
-| Section | Data Extracted |
-|---------|---------------|
-| `Statement` | Period, broker name |
-| `Account Information` | Account name, ID, base currency |
-| `Net Asset Value` | Current total, prior total |
-| `Net Asset Value` (TWR row) | Time-weighted return % |
-| `Change in NAV` | Starting value, ending value |
-| `Realized & Unrealized Performance Summary` | Per-ticker realized/unrealized P/L |
-| `Open Positions` | Per-ticker qty, cost price, current price, market value, unrealized P/L |
-| `Trades` | Individual trade rows |
-| `Mark-to-Market Performance Summary` | Per-ticker MTM P/L |
+| Section                                     | Data Extracted                                                          |
+| ------------------------------------------- | ----------------------------------------------------------------------- |
+| `Statement`                                 | Period, broker name                                                     |
+| `Account Information`                       | Account name, ID, base currency                                         |
+| `Net Asset Value`                           | Current total, prior total                                              |
+| `Net Asset Value` (TWR row)                 | Time-weighted return %                                                  |
+| `Change in NAV`                             | Starting value, ending value                                            |
+| `Realized & Unrealized Performance Summary` | Per-ticker realized/unrealized P/L                                      |
+| `Open Positions`                            | Per-ticker qty, cost price, current price, market value, unrealized P/L |
+| `Trades`                                    | Individual trade rows                                                   |
+| `Mark-to-Market Performance Summary`        | Per-ticker MTM P/L                                                      |
 
 Parser reads rows sequentially, switches section context on `Header` rows, accumulates `Data` rows per section.
 
@@ -218,20 +222,24 @@ Parser reads rows sequentially, switches section context on `Header` rows, accum
 **Step 2 — Detect overlaps** by comparing each statement's `[periodStart, periodEnd]` against others. Overlapping pairs are flagged and shown in the UI.
 
 **Step 3 — Merge Trades (deduplicate)**
+
 - Dedup key: `Symbol + Date/Time + Quantity + T.Price`
 - If two files contain a trade with identical key, keep one copy.
 - All unique trades from all files are merged into a single sorted list.
 
 **Step 4 — Realized P/L (from Trades)**
+
 - Recompute from the deduplicated trade list rather than trusting per-file summary sections.
 - Sum `Realized P/L` column from all unique `Trades,Data,Order` rows per ticker.
 
 **Step 5 — Use the latest file's point-in-time data**
+
 - The file with the latest `periodEnd` is the "current snapshot" file.
 - `Open Positions`, `Net Asset Value`, `TWR`, and `Change in NAV` are taken exclusively from this file.
 - These sections reflect current state and must not be summed across files.
 
 **Step 6 — Merged period**
+
 - `mergedPeriodStart` = min of all `periodStart`
 - `mergedPeriodEnd` = max of all `periodEnd`
 

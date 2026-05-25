@@ -1,7 +1,7 @@
 // src/components/upload/UploadZone.tsx
 import { useRef, useState, type DragEvent, type ChangeEvent } from 'react'
-import { useStatement } from '../../hooks/useStatement'
-import { createT } from '../../i18n'
+import { useStatement } from '@/hooks/useStatement'
+import { createT } from '@/i18n'
 
 export default function UploadZone() {
   const { lang, addFiles, darkMode } = useStatement()
@@ -11,7 +11,7 @@ export default function UploadZone() {
 
   async function handleFiles(fileList: FileList) {
     const inputs = await Promise.all(
-      Array.from(fileList).map(async f => ({ name: f.name, text: await f.text() }))
+      Array.from(fileList).map(async (f) => ({ name: f.name, text: await f.text() }))
     )
     addFiles(inputs)
   }
@@ -29,16 +29,21 @@ export default function UploadZone() {
   return (
     <div
       onClick={() => inputRef.current?.click()}
-      onDragOver={e => { e.preventDefault(); setDragging(true) }}
+      onDragOver={(e) => {
+        e.preventDefault()
+        setDragging(true)
+      }}
       onDragLeave={() => setDragging(false)}
       onDrop={onDrop}
       className={`
         cursor-pointer rounded-xl border-2 border-dashed p-12 text-center transition-colors
-        ${dragging
-          ? 'border-green-400 bg-green-400/10'
-          : darkMode
-            ? 'border-gray-600 hover:border-gray-400 bg-gray-800/50'
-            : 'border-gray-300 hover:border-gray-400 bg-gray-100/50'}
+        ${
+          dragging
+            ? 'border-green-400 bg-green-400/10'
+            : darkMode
+              ? 'border-gray-600 hover:border-gray-400 bg-gray-800/50'
+              : 'border-gray-300 hover:border-gray-400 bg-gray-100/50'
+        }
       `}
     >
       <div className="text-4xl mb-4">📁</div>

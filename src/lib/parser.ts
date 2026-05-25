@@ -1,5 +1,10 @@
 import Papa from 'papaparse'
-import type { StatementData, Trade, OpenPosition, RealizedUnrealizedSummary } from '../types/statement'
+import type {
+  StatementData,
+  Trade,
+  OpenPosition,
+  RealizedUnrealizedSummary,
+} from '@/types/statement'
 
 type Row = string[]
 
@@ -27,14 +32,11 @@ export function parseStatement(csvText: string): StatementData {
   let tradeHeaderCols: string[] = []
   let openPosHeaderCols: string[] = []
   let ruHeaderCols: string[] = []
-  let currentSection = ''
-
   for (const row of data) {
     const [sectionName, rowType, ...rest] = row
     if (!sectionName) continue
 
     if (rowType === 'Header') {
-      currentSection = sectionName
       switch (sectionName) {
         // The TWR header row has only one column — skip to avoid overwriting the asset-class header
         case 'Net Asset Value':
@@ -44,18 +46,19 @@ export function parseStatement(csvText: string): StatementData {
         case 'Trades':
           if (rest.includes('Realized P/L')) tradeHeaderCols = rest
           break
-        case 'Open Positions':                            openPosHeaderCols = rest; break
-        case 'Realized & Unrealized Performance Summary': ruHeaderCols = rest;      break
+        case 'Open Positions':
+          openPosHeaderCols = rest
+          break
+        case 'Realized & Unrealized Performance Summary':
+          ruHeaderCols = rest
+          break
       }
       continue
     }
 
     if (rowType !== 'Data') continue
 
-    currentSection = sectionName
-
-    switch (currentSection) {
-
+    switch (sectionName) {
       case 'Statement': {
         const [fieldName, fieldValue] = rest
         if (fieldName === 'Period') {
@@ -63,15 +66,15 @@ export function parseStatement(csvText: string): StatementData {
           const normalized = fieldValue.replace(/\s[–—]\s/g, ' - ')
           const parts = normalized.split(' - ')
           result.periodStart = parsePeriodDate(parts[0].trim())
-          result.periodEnd   = parsePeriodDate(parts[1].trim())
+          result.periodEnd = parsePeriodDate(parts[1].trim())
         }
         break
       }
 
       case 'Account Information': {
         const [fieldName, fieldValue] = rest
-        if (fieldName === 'Name')          result.accountName  = fieldValue
-        if (fieldName === 'Account')       result.accountId    = fieldValue
+        if (fieldName === 'Name') result.accountName = fieldValue
+        if (fieldName === 'Account') result.accountId = fieldValue
         if (fieldName === 'Base Currency') result.baseCurrency = fieldValue
         break
       }
@@ -84,10 +87,10 @@ export function parseStatement(csvText: string): StatementData {
         }
         const col = (name: string) => rest[navHeaderCols.indexOf(name)]
         const assetClass = rest[0].trim()
-        if (assetClass === 'Cash')  result.cashBalance = parseFloat(col('Current Total')) || 0
+        if (assetClass === 'Cash') result.cashBalance = parseFloat(col('Current Total')) || 0
         if (assetClass === 'Total') {
           result.currentNav = parseFloat(col('Current Total')) || 0
-          result.priorNav   = parseFloat(col('Prior Total'))   || 0
+          result.priorNav = parseFloat(col('Prior Total')) || 0
         }
         break
       }
@@ -95,9 +98,9 @@ export function parseStatement(csvText: string): StatementData {
       case 'Change in NAV': {
         const [fieldName, fieldValue] = rest
         const v = parseFloat(fieldValue) || 0
-        if (fieldName === 'Starting Value')         result.startingNav          = v
+        if (fieldName === 'Starting Value') result.startingNav = v
         if (fieldName === 'Deposits & Withdrawals') result.depositsWithdrawals = v
-        if (fieldName === 'Ending Value')           result.endingNav           = v
+        if (fieldName === 'Ending Value') result.endingNav = v
         break
       }
 
@@ -109,7 +112,7 @@ export function parseStatement(csvText: string): StatementData {
         if (!symbol || symbol === 'Total') break
         result.realizedUnrealized.push({
           symbol,
-          realizedTotal:   parseFloat(col('Realized Total'))   || 0,
+          realizedTotal: parseFloat(col('Realized Total')) || 0,
           unrealizedTotal: parseFloat(col('Unrealized Total')) || 0,
         })
         break
@@ -122,11 +125,11 @@ export function parseStatement(csvText: string): StatementData {
         if (!symbol) break
         result.openPositions.push({
           symbol,
-          quantity:     parseFloat(col('Quantity'))       || 0,
-          costPrice:    parseFloat(col('Cost Price'))     || 0,
-          costBasis:    parseFloat(col('Cost Basis'))     || 0,
-          closePrice:   parseFloat(col('Close Price'))    || 0,
-          marketValue:  parseFloat(col('Value'))          || 0,
+          quantity: parseFloat(col('Quantity')) || 0,
+          costPrice: parseFloat(col('Cost Price')) || 0,
+          costBasis: parseFloat(col('Cost Basis')) || 0,
+          closePrice: parseFloat(col('Close Price')) || 0,
+          marketValue: parseFloat(col('Value')) || 0,
           unrealizedPL: parseFloat(col('Unrealized P/L')) || 0,
         })
         break
@@ -140,15 +143,15 @@ export function parseStatement(csvText: string): StatementData {
         if (!symbol) break
         result.trades.push({
           symbol,
-          dateTime:   col('Date/Time') ?? '',
-          quantity:   parseFloat(col('Quantity'))     || 0,
-          price:      parseFloat(col('T. Price'))     || 0,
-          proceeds:   parseFloat(col('Proceeds'))     || 0,
-          commission: parseFloat(col('Comm/Fee'))     || 0,
-          basis:      parseFloat(col('Basis'))        || 0,
+          dateTime: col('Date/Time') ?? '',
+          quantity: parseFloat(col('Quantity')) || 0,
+          price: parseFloat(col('T. Price')) || 0,
+          proceeds: parseFloat(col('Proceeds')) || 0,
+          commission: parseFloat(col('Comm/Fee')) || 0,
+          basis: parseFloat(col('Basis')) || 0,
           realizedPL: parseFloat(col('Realized P/L')) || 0,
-          mtmPL:      parseFloat(col('MTM P/L'))      || 0,
-          code:       col('Code') ?? '',
+          mtmPL: parseFloat(col('MTM P/L')) || 0,
+          code: col('Code') ?? '',
         })
         break
       }

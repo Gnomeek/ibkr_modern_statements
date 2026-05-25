@@ -1,7 +1,7 @@
 // tests/lib/calculations.test.ts
 import { describe, it, expect } from 'vitest'
-import { buildTickerSummaries, buildPortfolioMetrics } from '../../src/lib/calculations'
-import type { MergedStatementData } from '../../src/types/statement'
+import { buildTickerSummaries, buildPortfolioMetrics } from '@/lib/calculations'
+import type { MergedStatementData } from '@/types/statement'
 
 const makeMerged = (): MergedStatementData => ({
   periodStart: new Date('2026-01-01'),
@@ -19,15 +19,26 @@ const makeMerged = (): MergedStatementData => ({
   fileCount: 1,
   trades: [
     {
-      symbol: 'ALLW', dateTime: '2026-01-06, 09:34:58', quantity: -40,
-      price: 27.995, proceeds: 1119.8, commission: -0.366,
-      basis: -1005.12, realizedPL: 114.31, mtmPL: -3.8, code: 'C',
+      symbol: 'ALLW',
+      dateTime: '2026-01-06, 09:34:58',
+      quantity: -40,
+      price: 27.995,
+      proceeds: 1119.8,
+      commission: -0.366,
+      basis: -1005.12,
+      realizedPL: 114.31,
+      mtmPL: -3.8,
+      code: 'C',
     },
   ],
   openPositions: [
     {
-      symbol: 'NVDA', quantity: 110, costPrice: 186.5,
-      costBasis: 20515, closePrice: 215.33, marketValue: 23686.3,
+      symbol: 'NVDA',
+      quantity: 110,
+      costPrice: 186.5,
+      costBasis: 20515,
+      closePrice: 215.33,
+      marketValue: 23686.3,
       unrealizedPL: 3172.29,
     },
   ],
@@ -40,7 +51,7 @@ const makeMerged = (): MergedStatementData => ({
 describe('buildTickerSummaries', () => {
   it('computes NVDA unrealized-only position', () => {
     const summaries = buildTickerSummaries(makeMerged())
-    const nvda = summaries.find(s => s.symbol === 'NVDA')
+    const nvda = summaries.find((s) => s.symbol === 'NVDA')
     expect(nvda).toBeDefined()
     expect(nvda!.unrealizedPL).toBeCloseTo(3172.29, 1)
     expect(nvda!.totalPL).toBeCloseTo(3172.29, 1)
@@ -49,7 +60,7 @@ describe('buildTickerSummaries', () => {
 
   it('computes ALLW fully-closed position', () => {
     const summaries = buildTickerSummaries(makeMerged())
-    const allw = summaries.find(s => s.symbol === 'ALLW')
+    const allw = summaries.find((s) => s.symbol === 'ALLW')
     expect(allw).toBeDefined()
     expect(allw!.realizedPL).toBeCloseTo(114.31, 1)
     expect(allw!.quantity).toBe(0)

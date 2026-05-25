@@ -1,17 +1,15 @@
 // src/lib/merger.ts
-import type { StatementData, MergedStatementData, Trade } from '../types/statement'
+import type { StatementData, MergedStatementData, Trade } from '@/types/statement'
 
 export function mergeStatements(statements: StatementData[]): MergedStatementData {
   if (statements.length === 0) throw new Error('No statements provided')
 
-  const sorted = [...statements].sort(
-    (a, b) => a.periodStart.getTime() - b.periodStart.getTime()
-  )
+  const sorted = [...statements].sort((a, b) => a.periodStart.getTime() - b.periodStart.getTime())
 
   const hasOverlap = detectOverlap(sorted)
-  const latest = sorted.reduce((a, b) => a.periodEnd > b.periodEnd ? a : b)
+  const latest = sorted.reduce((a, b) => (a.periodEnd > b.periodEnd ? a : b))
 
-  const allTrades = deduplicateTrades(sorted.flatMap(s => s.trades))
+  const allTrades = deduplicateTrades(sorted.flatMap((s) => s.trades))
 
   return {
     periodStart: sorted[0].periodStart,
