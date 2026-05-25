@@ -8,14 +8,25 @@ A client-side web app for analyzing Interactive Brokers activity statements. Upl
 
 ## Features
 
-- **Multi-file support** — IBKR limits exports to 365 days. Upload multiple CSVs covering different periods; overlapping date ranges are detected and deduplicated automatically.
-- **Overview tab** — total NAV, realized + unrealized P/L, total return %, time-weighted return, and an interactive portfolio allocation donut chart.
-- **Positions tab** — sortable table with per-ticker cost price, current price, market value, realized/unrealized P/L, and return %. Each row has a share button.
+- **Demo mode** — click "Try Demo" on the upload page to explore with synthetic data, no CSV needed.
+- **Multi-file support** — IBKR limits exports to 365 days per file. Upload multiple CSVs covering different periods; overlapping date ranges are detected and trades are deduplicated automatically.
+- **Overview tab** — total NAV, realized + unrealized P/L, net return %, time-weighted return (TWR), and an interactive portfolio allocation donut chart with Cash included.
+- **Positions tab** — sortable table with per-ticker cost price, current price, market value, realized/unrealized P/L, and return %. Share button on each row.
 - **Trades tab** — full trade history, sortable by any column, filterable by ticker.
-- **Share cards** — generate a 375×500px card per ticker showing either return rate or P/L amount. Supports dark and light themes. Downloads as a high-resolution PNG.
-- **One-click privacy mask** — hide all dollar amounts with a single button, safe for screen sharing.
+- **Share cards** — generate a 375×500px card per ticker in two variants (return rate or P/L amount) and two themes (dark / light). Downloads as a high-resolution PNG.
+- **One-click privacy mask** — hide all dollar amounts instantly, safe for screen sharing or recording.
 - **EN / 中文** language toggle.
 - **Dark / light** theme toggle.
+
+---
+
+## Calculations
+
+**TWR (Time-Weighted Return):** read directly from each CSV's `Net Asset Value` section. When multiple CSVs are uploaded, the per-period TWRs are chain-linked: `(1+r₁) × (1+r₂) × … − 1`. This matches the figure shown on the IBKR homepage.
+
+**Net Return %:** `(endingNAV − startingNAV − deposits) / (startingNAV + deposits)`. Strips out cash flows so the number reflects investment performance, not capital added.
+
+**Realized P/L:** summed directly from the merged trade records across all uploaded CSVs. This correctly handles positions where the buy and sell appear in different files.
 
 ---
 
@@ -24,7 +35,7 @@ A client-side web app for analyzing Interactive Brokers activity statements. Upl
 1. Log in → **Reports** → **Statements**
 2. Select statement type: **Activity**
 3. Set date range (max 365 days per export) → format: **CSV**
-4. Download. For history longer than 365 days, export multiple CSVs and upload them all at once.
+4. For history longer than 365 days, export multiple CSVs and upload them together.
 
 ---
 
@@ -33,7 +44,7 @@ A client-side web app for analyzing Interactive Brokers activity statements. Upl
 ```bash
 npm install
 npm run dev       # http://localhost:5173
-npm test          # run unit tests (19 tests)
+npm test          # 24 unit tests
 npm run build     # production build → dist/
 ```
 
@@ -50,16 +61,13 @@ npm install -g vercel
 vercel
 ```
 
-Follow the prompts. Vercel auto-detects Vite:
-- Build command: `npm run build`
-- Output directory: `dist`
+Vercel auto-detects Vite: build command `npm run build`, output directory `dist`.
 
 **Option B — GitHub auto-deploy**
 
 1. Push to GitHub
-2. Go to [vercel.com](https://vercel.com) → Import Git Repository
-3. Select the repo — zero config needed
-4. Every `git push` triggers a new deployment
+2. [vercel.com](https://vercel.com) → Import Git Repository → select repo
+3. Zero config needed — every `git push` triggers a new deployment
 
 ---
 
@@ -81,28 +89,27 @@ Follow the prompts. Vercel auto-detects Vite:
 
 ## Architecture
 
-All processing happens in the browser. The data flow is:
+All processing happens in the browser. Data never leaves the device.
 
 ```
 CSV file(s)
   → PapaParse
-  → parseStatement()       src/lib/parser.ts
-  → mergeStatements()      src/lib/merger.ts   (dedup overlapping periods)
-  → StatementContext        src/context/StatementContext.tsx
-  → Dashboard components
+  → parseStatement()     src/lib/parser.ts        each file → StatementData
+  → mergeStatements()    src/lib/merger.ts         dedup trades, compound TWR
+  → StatementContext     src/context/             global state
+  → Dashboard tabs
 ```
-
-Key files:
 
 ```
 src/
   lib/
-    parser.ts          CSV → StatementData (handles IBKR's multi-section format)
-    merger.ts          StatementData[] → MergedStatementData
-    calculations.ts    Derived metrics (ticker summaries, portfolio totals)
+    parser.ts          Parses IBKR's multi-section CSV format
+    merger.ts          Merges multiple StatementData, deduplicates trades
+    calculations.ts    Per-ticker summaries and portfolio metrics
+    demoData.ts        Synthetic data for demo mode
     shareCard.ts       html2canvas PNG export
   context/
-    StatementContext.tsx  Global state (files, merged data, UI preferences)
+    StatementContext.tsx
   pages/
     UploadPage.tsx
     DashboardPage.tsx
@@ -111,10 +118,13 @@ src/
     positions/         PositionsTable, ShareModal, ShareCard
     trades/            TradesTable, TickerFilter
     ui/                PnlCell
+  i18n.ts              EN/ZH string dictionary
 ```
 
 ---
 
 ## Privacy
 
-No network requests are made after the page loads. Your CSV data is parsed entirely in the browser and never transmitted anywhere.
+- No network requests after initial page load
+- CSV data is parsed in-browser and never transmitted
+- Real IBKR statement files are gitignored (`example_ibkr_statements*.csv`) — use `tests/fixtures/` for anonymized test data
