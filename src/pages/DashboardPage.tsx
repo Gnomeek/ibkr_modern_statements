@@ -60,18 +60,18 @@ function TopBar({
         {/* 操作按钮组 */}
         <div className="flex items-center gap-2 shrink-0">
           <button
+            onClick={onUploadMore}
+            className="px-3 py-1.5 text-xs font-medium rounded-md bg-green-500 hover:bg-green-400 text-white transition-colors cursor-pointer"
+          >
+            {lang === 'zh' ? '继续上传' : 'Upload More'}
+          </button>
+
+          <button
             onClick={onToggleMask}
             className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${masked ? 'bg-yellow-500 hover:bg-yellow-400 text-black' : `${btnSecondary}`}`}
             title={masked ? (lang === 'zh' ? '显示金额' : 'Show amounts') : (lang === 'zh' ? '隐藏金额' : 'Hide amounts')}
           >
             {masked ? '👁' : '🙈'}
-          </button>
-
-          <button
-            onClick={onUploadMore}
-            className="px-3 py-1.5 text-xs font-medium rounded-md bg-green-500 hover:bg-green-400 text-white transition-colors cursor-pointer"
-          >
-            {lang === 'zh' ? '继续上传' : 'Upload More'}
           </button>
 
           <button
