@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+
+# AI crawlers — allow indexing, disallow training data collection
+User-agent: GPTBot
+Disallow: /
+
+User-agent: OAI-SearchBot
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+Sitemap: https://ibkr-stats.vercel.app/sitemap.xml
