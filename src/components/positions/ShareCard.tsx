@@ -120,13 +120,15 @@ const ShareCard = forwardRef<HTMLDivElement, Props>(
             <>
               <CardRow
                 label={t('cost')}
-                value={`$${ticker.costPrice.toFixed(2)}`}
+                value={`$${(ticker.costPrice > 0 ? ticker.costPrice : ticker.avgCostPrice).toFixed(2)}`}
                 muted={muted}
                 text={text}
               />
               <CardRow
-                label={t('currentPrice')}
-                value={`$${ticker.currentPrice.toFixed(2)}`}
+                label={ticker.quantity === 0 ? t('sellPrice') : t('currentPrice')}
+                value={ticker.quantity === 0
+                  ? (ticker.avgSellPrice > 0 ? `$${ticker.avgSellPrice.toFixed(2)}` : '—')
+                  : `$${ticker.currentPrice.toFixed(2)}`}
                 muted={muted}
                 text={text}
               />
