@@ -57,7 +57,7 @@ export default function PositionsTable() {
         className={`rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-white border border-gray-200 shadow-sm'}`}
       >
         <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[860px]">
+          <table className="w-full text-sm min-w-[960px]">
             <thead className={darkMode ? 'border-b border-gray-700' : 'border-b border-gray-200'}>
               <tr>
                 {th(t('ticker'), 'symbol')}
@@ -69,6 +69,9 @@ export default function PositionsTable() {
                 </th>
                 <th className="text-right px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {t('currentPrice')}
+                </th>
+                <th className="text-right px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {t('sellPrice')}
                 </th>
                 <th className="text-right px-3 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {t('marketValue')}
@@ -93,10 +96,16 @@ export default function PositionsTable() {
                     {row.quantity || '—'}
                   </td>
                   <td className="px-3 py-3 text-right font-mono">
-                    {masked ? '$***' : row.costPrice > 0 ? `$${row.costPrice.toFixed(2)}` : '—'}
+                    {masked ? '$***' : (() => {
+                      const p = row.costPrice > 0 ? row.costPrice : row.avgCostPrice
+                      return p > 0 ? `$${p.toFixed(2)}` : '—'
+                    })()}
                   </td>
                   <td className="px-3 py-3 text-right font-mono">
-                    {row.currentPrice > 0 ? `$${row.currentPrice.toFixed(2)}` : '—'}
+                    {row.quantity > 0 && row.currentPrice > 0 ? `$${row.currentPrice.toFixed(2)}` : '—'}
+                  </td>
+                  <td className="px-3 py-3 text-right font-mono">
+                    {row.quantity === 0 && row.avgSellPrice > 0 ? `$${row.avgSellPrice.toFixed(2)}` : '—'}
                   </td>
                   <td className="px-3 py-3 text-right font-mono">
                     {masked

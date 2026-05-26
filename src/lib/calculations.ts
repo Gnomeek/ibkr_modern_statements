@@ -27,18 +27,24 @@ export function buildTickerSummaries(data: MergedStatementData): TickerSummary[]
     const unrealizedPL = pos?.unrealizedPL ?? 0
     const totalPL = realizedPL + unrealizedPL
 
-    const quantity = pos?.quantity ?? 0
-    const costPrice = pos?.costPrice ?? 0
-    const currentPrice = pos?.closePrice ?? 0
-    const marketValue = pos?.marketValue ?? 0
-    const costBasis = pos?.costBasis ?? estimateCostBasisFromTrades(data, symbol)
-    const returnPct = costBasis !== 0 ? (totalPL / costBasis) * 100 : 0
+    const quantity     = pos?.quantity    ?? 0
+    const costPrice    = pos?.costPrice   ?? 0
+    const currentPrice = pos?.closePrice  ?? 0
+    const marketValue  = pos?.marketValue ?? 0
+    const costBasis    = pos?.costBasis   ?? estimateCostBasisFromTrades(data, symbol)
+    const returnPct    = costBasis !== 0 ? (totalPL / costBasis) * 100 : 0
+
+    const symbolTrades = data.trades.filter((t) => t.symbol === symbol)
+    const avgCostPrice = weightedAvgPrice(symbolTrades.filter((t) => t.quantity > 0))
+    const avgSellPrice = weightedAvgPrice(symbolTrades.filter((t) => t.quantity < 0))
 
     return {
       symbol,
       quantity,
       costPrice,
+      avgCostPrice,
       currentPrice,
+      avgSellPrice,
       marketValue,
       realizedPL,
       unrealizedPL,
@@ -47,6 +53,13 @@ export function buildTickerSummaries(data: MergedStatementData): TickerSummary[]
       costBasis,
     }
   })
+}
+
+function weightedAvgPrice(trades: { quantity: number; price: number }[]): number {
+  const totalShares = trades.reduce((s, t) => s + Math.abs(t.quantity), 0)
+  if (totalShares === 0) return 0
+  const totalValue = trades.reduce((s, t) => s + Math.abs(t.quantity) * t.price, 0)
+  return totalValue / totalShares
 }
 
 function estimateCostBasisFromTrades(data: MergedStatementData, symbol: string): number {

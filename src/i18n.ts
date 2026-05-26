@@ -23,6 +23,7 @@ const dict = {
   qty: { en: 'Qty', zh: '数量' },
   costPrice: { en: 'Cost Price', zh: '成本价' },
   currentPrice: { en: 'Current Price', zh: '当前价' },
+  sellPrice: { en: 'Sell Price', zh: '卖出均价' },
   marketValue: { en: 'Market Value', zh: '市值' },
   realizedPL: { en: 'Realized P/L', zh: '已实现盈亏' },
   unrealizedPL: { en: 'Unrealized P/L', zh: '未实现盈亏' },

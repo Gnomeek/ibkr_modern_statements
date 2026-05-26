@@ -56,14 +56,16 @@ export interface StatementData {
 
 export interface TickerSummary {
   symbol: string
-  quantity: number // 0 = fully closed position
-  costPrice: number // avg cost per share (0 if fully closed)
-  currentPrice: number // 0 if fully closed
-  marketValue: number // 0 if fully closed
+  quantity: number        // 0 = fully closed position
+  costPrice: number       // avg cost per share from open position (0 if fully closed)
+  avgCostPrice: number    // weighted avg buy price computed from trades (works for closed positions)
+  currentPrice: number    // 0 if fully closed
+  avgSellPrice: number    // weighted avg sell price from trades (0 if still open)
+  marketValue: number     // 0 if fully closed
   realizedPL: number
   unrealizedPL: number
   totalPL: number
-  returnPct: number // totalPL / costBasis * 100
+  returnPct: number       // totalPL / costBasis * 100
   costBasis: number
 }
 
